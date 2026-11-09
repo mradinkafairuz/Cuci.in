@@ -1,165 +1,350 @@
-export type OrderProcessStatus =
-  | "MENUNGGU"
-  | "DITERIMA"
-  | "DICUCI"
-  | "DISETRIKA"
-  | "SIAP_DIAMBIL"
-  | "SELESAI";
+﻿export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
-export type OrderPaymentStatus = "UNPAID" | "PAID";
-export type OrderType = "KILOAN" | "SATUAN";
-
-type Relationship = {
-  foreignKeyName: string;
-  columns: string[];
-  isOneToOne: boolean;
-  referencedRelation: string;
-  referencedColumns: string[];
-};
-
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
   public: {
     Tables: {
+      order_logs: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_status: Database["public"]["Enums"]["process_status"]
+          note: string | null
+          old_status: Database["public"]["Enums"]["process_status"] | null
+          order_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_status: Database["public"]["Enums"]["process_status"]
+          note?: string | null
+          old_status?: Database["public"]["Enums"]["process_status"] | null
+          order_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["process_status"]
+          note?: string | null
+          old_status?: Database["public"]["Enums"]["process_status"] | null
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_logs_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
-          id: string;
-          order_code: string;
-          customer_id: string | null;
-          service_id: string | null;
-          pickup_address: string;
-          contact_phone: string;
-          notes: string | null;
-          weight_kg: number | null;
-          total_price: number | null;
-          process_status: OrderProcessStatus;
-          payment_status: OrderPaymentStatus;
-          estimated_done_at: string | null;
-          handled_by: string | null;
-          paid_at: string | null;
-          created_at: string;
-          updated_at: string;
-          customer_name: string | null;
-          pickup_at: string | null;
-          order_type: OrderType;
-        };
+          contact_phone: string
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          estimated_done_at: string | null
+          handled_by: string | null
+          id: string
+          notes: string | null
+          order_code: string
+          paid_at: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          pickup_address: string
+          pickup_at: string | null
+          process_status: Database["public"]["Enums"]["process_status"]
+          service_id: string
+          total_price: number | null
+          updated_at: string
+          weight_kg: number | null
+        }
         Insert: {
-          order_code: string;
-          pickup_address: string;
-          contact_phone: string;
-          customer_name?: string | null;
-          customer_id?: string | null;
-          service_id?: string | null;
-          notes?: string | null;
-          weight_kg?: number | null;
-          total_price?: number | null;
-          process_status?: OrderProcessStatus;
-          payment_status?: OrderPaymentStatus;
-          estimated_done_at?: string | null;
-          handled_by?: string | null;
-          paid_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-          pickup_at?: string | null;
-          order_type?: OrderType;
-          id?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["orders"]["Insert"]>;
+          contact_phone: string
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          estimated_done_at?: string | null
+          handled_by?: string | null
+          id?: string
+          notes?: string | null
+          order_code: string
+          paid_at?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          pickup_address: string
+          pickup_at?: string | null
+          process_status?: Database["public"]["Enums"]["process_status"]
+          service_id: string
+          total_price?: number | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          contact_phone?: string
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          estimated_done_at?: string | null
+          handled_by?: string | null
+          id?: string
+          notes?: string | null
+          order_code?: string
+          paid_at?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          pickup_address?: string
+          pickup_at?: string | null
+          process_status?: Database["public"]["Enums"]["process_status"]
+          service_id?: string
+          total_price?: number | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
         Relationships: [
-          Relationship & {
-            foreignKeyName: "orders_service_id_fkey";
-            columns: ["service_id"];
-            referencedRelation: "services";
-            referencedColumns: ["id"];
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
-        ];
-      };
+          {
+            foreignKeyName: "orders_handled_by_fkey"
+            columns: ["handled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
       services: {
         Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          price_per_kg: number;
-          estimated_days: number;
-          is_active: boolean;
-          created_at: string;
-          slug: string | null;
-        };
+          created_at: string
+          description: string | null
+          estimated_days: number
+          id: string
+          is_active: boolean
+          name: string
+          price_per_kg: number
+          slug: string | null
+        }
         Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          price_per_kg: number;
-          estimated_days: number;
-          is_active?: boolean;
-          created_at?: string;
-          slug?: string | null;
-        };
-        Update: Partial<Database["public"]["Tables"]["services"]["Insert"]>;
-        Relationships: [];
-      };
-      laundry_items: {
-        Row: {
-          id: string;
-          slug: string;
-          name: string;
-          price: number;
-          is_active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          slug: string;
-          name: string;
-          price: number;
-          is_active?: boolean;
-          created_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["laundry_items"]["Insert"]>;
-        Relationships: [];
-      };
-      order_items: {
-        Row: {
-          id: string;
-          order_id: string;
-          item_id: string | null;
-          item_name: string;
-          unit_price: number;
-          quantity: number;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          order_id: string;
-          item_id?: string | null;
-          item_name: string;
-          unit_price: number;
-          quantity: number;
-          created_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["order_items"]["Insert"]>;
-        Relationships: [
-          Relationship & {
-            foreignKeyName: "order_items_order_id_fkey";
-            columns: ["order_id"];
-            referencedRelation: "orders";
-            referencedColumns: ["id"];
-          },
-          Relationship & {
-            foreignKeyName: "order_items_item_id_fkey";
-            columns: ["item_id"];
-            referencedRelation: "laundry_items";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+          created_at?: string
+          description?: string | null
+          estimated_days: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price_per_kg: number
+          slug?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          estimated_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_per_kg?: number
+          slug?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      get_my_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+    }
     Enums: {
-      process_status: OrderProcessStatus;
-      payment_status: OrderPaymentStatus;
-      order_type: OrderType;
-    };
-    CompositeTypes: Record<string, never>;
-  };
+      payment_status: "UNPAID" | "PAID"
+      process_status: "DITERIMA" | "DIPROSES" | "SIAP_DIAMBIL" | "SELESAI"
+      user_role: "admin" | "petugas" | "pelanggan"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      payment_status: ["UNPAID", "PAID"],
+      process_status: ["DITERIMA", "DIPROSES", "SIAP_DIAMBIL", "SELESAI"],
+      user_role: ["admin", "petugas", "pelanggan"],
+    },
+  },
+} as const

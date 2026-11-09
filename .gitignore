@@ -7,6 +7,7 @@ dist/
 .vercel/
 .turbo/
 .npm-cache/
+supabase/.temp
 
 .env*
 !.env.example
@@ -17,3 +18,4 @@ yarn-debug.log*
 pnpm-debug.log*
 .DS_Store
 Thumbs.db
+
