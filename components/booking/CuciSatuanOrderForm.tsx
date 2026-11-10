@@ -109,7 +109,6 @@ export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string 
           <h2 className="text-xl font-bold text-ink">1. Pilih jenis pakaian</h2>
           <p className="mt-1 text-sm text-muted">Harga dihitung per item dan langsung terlihat di ringkasan pesanan.</p>
           {catalogLoading && <p role="status" className="mt-4 text-sm text-muted">Menyiapkan daftar cucian...</p>}
-          {usingLocalCatalog && <p role="status" className="mt-4 text-sm text-amber-700">Katalog online belum aktif{catalogError ? ` (${catalogError})` : catalog?.catalogWarning ? "." : ""} Pesanan tetap bisa dikirim melalui WhatsApp.</p>}
           {!catalogLoading && !catalogError && items.length === 0 && !catalog?.catalogWarning && <p className="mt-4 text-sm text-muted">Belum ada jenis cucian aktif. Silakan hubungi pengelola laundry.</p>}
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {items.map((item) => (

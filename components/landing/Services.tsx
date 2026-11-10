@@ -14,7 +14,7 @@ const icons = {
 };
 
 export function Services() {
-  const { catalog, isLoading, error, catalogWarning } = usePublicCatalog();
+  const { catalog, isLoading, error } = usePublicCatalog();
   const services = catalog?.services ?? [];
 
   return (
@@ -27,7 +27,6 @@ export function Services() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {isLoading && <p role="status" className="text-sm text-muted">Memuat layanan...</p>}
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-        {catalogWarning && <p role="status" className="text-sm text-amber-700 sm:col-span-2 lg:col-span-4">{catalogWarning}</p>}
         {!isLoading && !error && services.length === 0 && <p className="text-sm text-muted">Belum ada layanan aktif.</p>}
         {services.map((s) => {
           const Icon = icons[s.icon];

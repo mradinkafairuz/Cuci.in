@@ -12,7 +12,7 @@ import { formatRupiah } from "@/lib/utils/format";
 import type { OrderTracking } from "@/types";
 
 export function BookingForm({ initialServiceId }: { initialServiceId?: string }) {
-  const { catalog, isLoading: catalogLoading, error: catalogError, catalogWarning, usingLocalServices } = usePublicCatalog();
+  const { catalog, isLoading: catalogLoading, error: catalogError, usingLocalServices } = usePublicCatalog();
   const services = catalog?.services ?? [];
   const [serviceId, setServiceId] = useState("");
   const [createdOrder, setCreatedOrder] = useState<OrderTracking | null>(null);
@@ -115,7 +115,6 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
         <p className="mt-1 text-sm text-muted">Tarif yang ditampilkan per kilogram. Tagihan akhir mengikuti berat aktual setelah cucian ditimbang.</p>
         {catalogLoading && <p role="status" className="mt-4 text-sm text-muted">Memuat layanan...</p>}
         {catalogError && <p role="alert" className="mt-4 text-sm text-red-600">{catalogError}</p>}
-        {catalogWarning && <p role="status" className="mt-4 text-sm text-amber-700">{catalogWarning}</p>}
         {!catalogLoading && !catalogError && services.length === 0 && <p className="mt-4 text-sm text-muted">Belum ada layanan aktif. Silakan hubungi pengelola laundry.</p>}
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {services.map((service) => (

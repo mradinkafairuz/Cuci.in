@@ -15,7 +15,6 @@ export function usePublicCatalog() {
   const [catalog, setCatalog] = useState<PublicCatalog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [catalogWarning, setCatalogWarning] = useState("");
   const [usingLocalServices, setUsingLocalServices] = useState(false);
   const [usingLocalItems, setUsingLocalItems] = useState(false);
 
@@ -38,16 +37,12 @@ export function usePublicCatalog() {
           });
           setUsingLocalServices(localServices);
           setUsingLocalItems(localItems);
-          if (localServices || localItems) {
-            setCatalogWarning("Katalog online belum lengkap. Daftar lokal ditampilkan; pesanan akan dikonfirmasi melalui WhatsApp.");
-          }
         }
       } catch (loadError) {
         if (active) {
           setCatalog({ services: LOCAL_LAUNDRY_SERVICES, items: LOCAL_LAUNDRY_ITEMS });
           setUsingLocalServices(true);
           setUsingLocalItems(true);
-          setCatalogWarning("Katalog online belum tersedia. Daftar lokal ditampilkan; pesanan akan dikonfirmasi melalui WhatsApp.");
           setError("");
         }
       } finally {
@@ -59,5 +54,5 @@ export function usePublicCatalog() {
     return () => { active = false; };
   }, []);
 
-  return { catalog, isLoading, error, catalogWarning, usingLocalServices, usingLocalItems };
+  return { catalog, isLoading, error, usingLocalServices, usingLocalItems };
 }
