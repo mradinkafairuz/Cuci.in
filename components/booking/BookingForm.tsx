@@ -12,7 +12,7 @@ import { formatRupiah } from "@/lib/utils/format";
 import type { OrderTracking } from "@/types";
 
 export function BookingForm({ initialServiceId }: { initialServiceId?: string }) {
-  const { catalog, isLoading: catalogLoading, error: catalogError } = usePublicCatalog();
+  const { catalog, isLoading: catalogLoading, error: catalogError, catalogWarning, usingLocalServices } = usePublicCatalog();
   const services = catalog?.services ?? [];
   const [serviceId, setServiceId] = useState("");
   const [createdOrder, setCreatedOrder] = useState<OrderTracking | null>(null);
@@ -48,6 +48,21 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
     }
     if (pickupAddress.length < 8) {
       setSubmitError("Alamat penjemputan perlu mencantumkan detail yang cukup.");
+      return;
+    }
+
+    if (usingLocalServices) {
+      const message = [
+        "Halo Cuci.in, saya ingin memesan layanan kiloan.",
+        `Layanan: ${selected.name}`,
+        `Tarif: ${formatRupiah(selected.pricePerKg)} per kg`,
+        `Estimasi: ${selected.estimateDays} hari`,
+        `Nama: ${customerName}`,
+        `Nomor WhatsApp: ${phone}`,
+        `Alamat penjemputan: ${pickupAddress}`,
+        "Mohon konfirmasi ketersediaan layanan, berat cucian, dan total harga. Terima kasih.",
+      ].join("\n");
+      window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
       return;
     }
 
@@ -100,6 +115,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
         <p className="mt-1 text-sm text-muted">Tarif yang ditampilkan per kilogram. Tagihan akhir mengikuti berat aktual setelah cucian ditimbang.</p>
         {catalogLoading && <p role="status" className="mt-4 text-sm text-muted">Memuat layanan...</p>}
         {catalogError && <p role="alert" className="mt-4 text-sm text-red-600">{catalogError}</p>}
+        {catalogWarning && <p role="status" className="mt-4 text-sm text-amber-700">{catalogWarning}</p>}
         {!catalogLoading && !catalogError && services.length === 0 && <p className="mt-4 text-sm text-muted">Belum ada layanan aktif. Silakan hubungi pengelola laundry.</p>}
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {services.map((service) => (
@@ -137,7 +153,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
           {selected && <Badge><Clock size={12} className="mr-1" /> Estimasi {selected.estimateDays} hari</Badge>}
         </div>
         <button type="submit" disabled={isSubmitting || catalogLoading || !selected} className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-wait disabled:opacity-60">
-          <PackageCheck size={18} /> {isSubmitting ? "Menyimpan..." : "Buat pesanan"}
+          <PackageCheck size={18} /> {isSubmitting ? "Menyimpan..." : usingLocalServices ? "Pesan via WhatsApp" : "Buat pesanan"}
         </button>
       </Card>
       {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{submitError}</p>}

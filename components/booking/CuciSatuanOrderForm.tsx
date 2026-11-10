@@ -11,9 +11,9 @@ import { LOCAL_LAUNDRY_ITEMS } from "@/lib/data/laundry-items";
 import type { OrderTracking } from "@/types";
 
 export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string }) {
-  const { catalog, isLoading: catalogLoading, error: catalogError } = usePublicCatalog();
+  const { catalog, isLoading: catalogLoading, error: catalogError, usingLocalItems } = usePublicCatalog();
   const items = catalog?.items.length ? catalog.items : LOCAL_LAUNDRY_ITEMS;
-  const usingLocalCatalog = !catalog?.items.length;
+  const usingLocalCatalog = usingLocalItems || !catalog?.items.length;
   const [itemId, setItemId] = useState(() => LOCAL_LAUNDRY_ITEMS.find((item) => item.slug === initialItemId || item.id === initialItemId)?.id ?? LOCAL_LAUNDRY_ITEMS[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [createdOrder, setCreatedOrder] = useState<OrderTracking | null>(null);
