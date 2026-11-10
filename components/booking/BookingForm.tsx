@@ -43,7 +43,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
       return;
     }
     if (!isValidIndonesianPhone(phone)) {
-      setSubmitError("Masukkan nomor WhatsApp Indonesia yang valid, misalnya 081234567890.");
+      setSubmitError("Masukkan nomor WhatsApp yang valid.");
       return;
     }
     if (pickupAddress.length < 8) {
@@ -78,6 +78,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
         <h1 className="mt-2 text-3xl font-bold text-ink">Pesanan Anda siap dilacak</h1>
         <p className="mt-3 text-muted">Kode pesanan Anda:</p>
         <p className="mt-1 font-mono text-2xl font-bold text-brand-700">{createdOrder.code}</p>
+        <p className="mx-auto mt-3 max-w-md text-sm text-muted">Petugas akan menimbang cucian dan mengirim total harga untuk Anda setujui sebelum pengerjaan dimulai.</p>
         <div className="mx-auto mt-4 max-w-md rounded-xl bg-soft/50 p-4 text-left text-sm">
           <p className="font-semibold text-ink">{createdOrder.customerName}</p>
           <p className="mt-1 text-muted">{createdOrder.phone}</p>
@@ -93,7 +94,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mx-auto max-w-4xl space-y-6">
+    <form onSubmit={handleSubmit} noValidate data-wa-order-type="KILOAN" data-wa-selection={selected?.name ?? ""} className="mx-auto max-w-4xl space-y-6">
       <section>
         <h2 className="text-xl font-bold text-ink">1. Pilih layanan</h2>
         <p className="mt-1 text-sm text-muted">Tarif yang ditampilkan per kilogram. Tagihan akhir mengikuti berat aktual setelah cucian ditimbang.</p>
@@ -140,7 +141,6 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
         </button>
       </Card>
       {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{submitError}</p>}
-      <p className="text-center text-xs text-muted">Pesanan akan disimpan ke database laundry.</p>
     </form>
   );
 }

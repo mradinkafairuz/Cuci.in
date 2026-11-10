@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { RouteLoadingOverlay } from "@/components/layout/RouteLoadingOverlay";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-page text-ink selection:bg-brand-500 selection:text-white min-h-screen">
         <RouteLoadingOverlay />
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );

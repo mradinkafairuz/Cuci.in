@@ -6,6 +6,7 @@ import type { LaundryItem, LaundryService } from "@/types";
 interface PublicCatalog {
   services: LaundryService[];
   items: LaundryItem[];
+  catalogWarning?: string | null;
 }
 
 export function usePublicCatalog() {
@@ -22,7 +23,7 @@ export function usePublicCatalog() {
         if (!response.ok || !result.services || !result.items) {
           throw new Error(result.error ?? "Katalog tidak dapat dimuat.");
         }
-        if (active) setCatalog({ services: result.services, items: result.items });
+        if (active) setCatalog({ services: result.services, items: result.items, catalogWarning: result.catalogWarning ?? null });
       } catch (loadError) {
         if (active) setError(loadError instanceof Error ? loadError.message : "Katalog tidak dapat dimuat.");
       } finally {
