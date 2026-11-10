@@ -4,6 +4,7 @@ import { getStaffSession } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 import type { OrderTracking } from "@/types";
+import type { Database } from "@/types/database.types";
 
 export const runtime = "nodejs";
 const ORDER_CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
@@ -222,7 +223,7 @@ export async function POST(request: Request) {
     let createdOrder: { id: string; order_code: string } | null = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const orderCode = generateOrderCode();
-      const orderValues = {
+      const orderValues: Database["public"]["Tables"]["orders"]["Insert"] = {
         order_code: orderCode,
         customer_id: null,
         customer_name: input.customerName,
