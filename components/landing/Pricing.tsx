@@ -66,7 +66,9 @@ export function Pricing() {
             title="Harga layanan cuci satuan"
             subtitle="Berikut harga untuk setiap item yang ingin dicuci."
           />
-          <ProductRailGallery items={galleryItems.length ? galleryItems : CUCI_SATUAN_ITEMS} />
+          {items.length > 0
+            ? <ProductRailGallery items={galleryItems} />
+            : <p className="py-8 text-center text-sm text-muted">{isLoading ? "Memuat daftar cucian..." : error || "Belum ada jenis cucian aktif."}</p>}
         </div>
       </div>
     </section>

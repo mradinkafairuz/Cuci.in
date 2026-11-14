@@ -6,11 +6,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { formatRupiah } from "@/lib/utils/format";
 import { getOrderByCode } from "@/lib/services/orders";
 import { isValidOrderCode } from "@/lib/utils/order-code";
 import type { OrderStatus, OrderTracking } from "@/types";
-import { OrderProgress } from "@/components/landing/OrderProgress";
 
 const statusLabel: Record<OrderStatus, string> = {
   menunggu: "Menunggu",
@@ -29,8 +27,6 @@ export function OrderStatusForm({ initialCode = "" }: { initialCode?: string }) 
   const [fieldError, setFieldError] = useState("");
   const [state, setState] = useState<ViewState>("idle");
   const [order, setOrder] = useState<OrderTracking | null>(null);
-  const [quoteDecisionLoading, setQuoteDecisionLoading] = useState(false);
-  const [quoteDecisionError, setQuoteDecisionError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,28 +50,6 @@ export function OrderStatusForm({ initialCode = "" }: { initialCode?: string }) 
       setState(result ? "found" : "notfound");
     } catch {
       setState("error");
-    }
-  }
-
-  async function decideQuote(decision: "approve" | "reject") {
-    if (!order || quoteDecisionLoading) return;
-    setQuoteDecisionLoading(true);
-    setQuoteDecisionError("");
-    try {
-      const response = await fetch("/api/orders/quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: order.code, decision }),
-      });
-      const result: { error?: string } = await response.json();
-      if (!response.ok) throw new Error(result.error ?? "Persetujuan harga belum dapat disimpan.");
-      const refreshed = await getOrderByCode(order.code);
-      if (!refreshed) throw new Error("Status terbaru belum dapat dimuat. Silakan cek ulang kode pesanan.");
-      setOrder(refreshed);
-    } catch (error) {
-      setQuoteDecisionError(error instanceof Error ? error.message : "Persetujuan harga belum dapat disimpan.");
-    } finally {
-      setQuoteDecisionLoading(false);
     }
   }
 
@@ -140,38 +114,9 @@ export function OrderStatusForm({ initialCode = "" }: { initialCode?: string }) 
                 {statusLabel[order.status]}
               </Badge>
             </div>
-            <OrderProgress status={order.status} />
-            {order.priceQuoteStatus === "menunggu_timbang" && (
-              <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-                Cucian sedang menunggu ditimbang. Petugas akan mengirim harga final untuk Anda setujui sebelum pengerjaan dimulai.
-              </div>
-            )}
-            {order.priceQuoteStatus === "menunggu_persetujuan" && (
-              <div className="mt-5 rounded-xl border border-brand-300/50 bg-brand-50/70 p-4">
-                <p className="font-bold text-ink">Konfirmasi penawaran harga</p>
-                <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-                  {order.processingMethod && <div><dt className="text-muted">Metode pengerjaan</dt><dd className="font-semibold text-ink">{order.processingMethod}</dd></div>}
-                  {order.weightKg != null && <div><dt className="text-muted">Berat aktual</dt><dd className="font-semibold text-ink">{order.weightKg} kg</dd></div>}
-                  <div><dt className="text-muted">Total penawaran</dt><dd className="text-lg font-extrabold text-brand-700">{formatRupiah(order.total ?? 0)}</dd></div>
-                </dl>
-                <p className="mt-2 text-xs text-muted">Pengerjaan baru dimulai setelah Anda menyetujui harga ini.</p>
-                {quoteDecisionError && <p role="alert" className="mt-3 text-sm text-red-700">{quoteDecisionError}</p>}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button type="button" disabled={quoteDecisionLoading} onClick={() => void decideQuote("approve")}>
-                    {quoteDecisionLoading ? "Menyimpan..." : "Setujui harga"}
-                  </Button>
-                  <Button type="button" variant="outline" disabled={quoteDecisionLoading} onClick={() => void decideQuote("reject")}>
-                    Tolak penawaran
-                  </Button>
-                </div>
-              </div>
-            )}
-            {order.priceQuoteStatus === "disetujui" && <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800">Harga sudah Anda setujui. Pesanan mulai diproses.</p>}
-            {order.priceQuoteStatus === "ditolak" && <p className="mt-4 rounded-xl bg-rose-50 p-3 text-sm font-medium text-rose-800">Penawaran ditolak. Hubungi Cuci.in jika ingin membahas perubahan layanan atau harga.</p>}
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div><dt className="text-muted">Layanan</dt><dd className="font-medium text-ink">{order.serviceName}</dd></div>
               <div><dt className="text-muted">Estimasi selesai</dt><dd className="font-medium text-ink">{order.estimatedDone}</dd></div>
-              {order.priceQuoteStatus !== "menunggu_persetujuan" && order.total != null && <div><dt className="text-muted">Total</dt><dd className="font-medium text-ink">{formatRupiah(order.total)}</dd></div>}
             </dl>
           </Card>
         )}

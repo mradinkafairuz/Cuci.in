@@ -22,12 +22,13 @@ export async function GET() {
         .order("name"),
       supabase
         .from("laundry_items")
-        .select("id, slug, name, processing_method, price")
+        .select("id, slug, name, price")
         .eq("is_active", true)
         .order("name"),
     ]);
 
     if (servicesResult.error) throw servicesResult.error;
+    if (itemsResult.error) throw itemsResult.error;
 
     return NextResponse.json(
       {
@@ -40,16 +41,12 @@ export async function GET() {
           estimateDays: service.estimated_days,
           icon: getServiceIcon(service.name),
         })),
-        items: (itemsResult.data ?? []).map((item) => ({
+        items: itemsResult.data.map((item) => ({
           id: item.id,
           slug: item.slug,
           name: item.name,
-          processingMethod: item.processing_method,
           price: Number(item.price),
         })),
-        catalogWarning: itemsResult.error
-          ? "Katalog cuci satuan belum tersedia. Pastikan migrasi katalog Supabase sudah dijalankan."
-          : null,
       },
       { headers: { "Cache-Control": "no-store" } },
     );
