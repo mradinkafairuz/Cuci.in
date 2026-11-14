@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { LaundryItem, LaundryService } from "@/types";
-import { LOCAL_LAUNDRY_ITEMS } from "@/lib/data/laundry-items";
-import { LOCAL_LAUNDRY_SERVICES } from "@/lib/data/laundry-services";
+import type { LaundryItem, LaundryService, OperatingHour } from "@/types";
 
 interface PublicCatalog {
   services: LaundryService[];
   items: LaundryItem[];
-  catalogWarning?: string | null;
+  equipment: {
+    id: string;
+    name: string;
+    description: string | null;
+    price: number | null;
+    priceUnit: "hari" | "minggu" | "bulan" | null;
+    quantityAvailable: number;
+  }[];
+  businessHours: OperatingHour[];
 }
 
 export function usePublicCatalog() {
@@ -24,20 +30,10 @@ export function usePublicCatalog() {
       try {
         const response = await fetch("/api/catalog", { cache: "no-store" });
         const result: Partial<PublicCatalog> & { error?: string } = await response.json();
-        if (!response.ok || !result.services || !result.items) {
+        if (!response.ok || !result.services || !result.items || !result.equipment || !result.businessHours) {
           throw new Error(result.error ?? "Katalog tidak dapat dimuat.");
         }
-        const localServices = result.services.length === 0;
-        const localItems = result.items.length === 0 || Boolean(result.catalogWarning);
-        if (active) {
-          setCatalog({
-            services: localServices ? LOCAL_LAUNDRY_SERVICES : result.services,
-            items: localItems ? LOCAL_LAUNDRY_ITEMS : result.items,
-            catalogWarning: result.catalogWarning ?? null,
-          });
-          setUsingLocalServices(localServices);
-          setUsingLocalItems(localItems);
-        }
+        if (active) setCatalog({ services: result.services, items: result.items, equipment: result.equipment, businessHours: result.businessHours });
       } catch (loadError) {
         if (active) {
           setCatalog({ services: LOCAL_LAUNDRY_SERVICES, items: LOCAL_LAUNDRY_ITEMS });

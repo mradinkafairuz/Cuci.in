@@ -9,9 +9,12 @@ export const dynamic = "force-dynamic";
 
 const publicStatus: Record<Database["public"]["Enums"]["process_status"], OrderStatus> = {
   DITERIMA: "diterima",
-  DIPROSES: "dicuci",
+  DIPROSES: "diproses",
+  DICUCI: "dicuci",
+  DISETRIKA: "disetrika",
   SIAP_DIAMBIL: "siap_diambil",
   SELESAI: "selesai",
+  DIBATALKAN: "dibatalkan",
 };
 
 const publicQuoteStatus = {
@@ -57,7 +60,7 @@ export async function GET(request: Request) {
     const supabase = createSupabaseAdminClient();
     const { data: currentRow, error } = await supabase
       .from("orders")
-      .select("id, order_code, process_status, order_type, price_quote_status, service_id, weight_kg, total_price, estimated_done_at")
+      .select("id, order_code, process_status, order_type, service_id, estimated_done_at, customer_message, services(name)")
       .eq("order_code", code)
       .maybeSingle();
     let row = currentRow;
@@ -81,14 +84,7 @@ export async function GET(request: Request) {
     let serviceName = "Cuci Satuan";
     let processingMethod: string | null = null;
     if (row.order_type === "KILOAN" && row.service_id) {
-      const { data: service, error: serviceError } = await supabase
-        .from("services")
-        .select("name")
-        .eq("id", row.service_id)
-        .maybeSingle();
-      if (serviceError) throw serviceError;
-      serviceName = service?.name ?? "Layanan laundry";
-      processingMethod = serviceName;
+      serviceName = row.services?.name ?? "Layanan laundry";
     } else if (row.order_type === "SATUAN") {
       const { data: items, error: itemsError } = await supabase
         .from("order_items")
@@ -108,10 +104,7 @@ export async function GET(request: Request) {
       serviceName,
       status: publicStatus[row.process_status],
       estimatedDone: formatEstimatedDone(row.estimated_done_at),
-      weightKg: row.weight_kg === null ? null : Number(row.weight_kg),
-      total: row.total_price === null ? null : Number(row.total_price),
-      priceQuoteStatus: publicQuoteStatus[row.price_quote_status],
-      processingMethod,
+      customerMessage: row.customer_message,
     };
     return NextResponse.json({ order }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
