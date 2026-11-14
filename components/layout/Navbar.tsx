@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { BadgeDollarSign, BookOpen, Clock3, House, MoreHorizontal, PackageSearch, Shirt, ShoppingBag, Sparkles, X } from "lucide-react";
+import { BadgeDollarSign, BookOpen, Clock3, House, MapPin, MoreHorizontal, PackageSearch, Shirt, ShoppingBag, Sparkles, Wrench, X } from "lucide-react";
 import { LiquidNavbar, type LiquidNavItem } from "@/components/ui/liquid-glass-navbar";
 
 const navItems: LiquidNavItem[] = [
@@ -15,6 +15,7 @@ const navItems: LiquidNavItem[] = [
   { label: "Jam Operasional", href: "/#jam-operasional", icon: <Clock3 size={18} strokeWidth={1.8} />, fx: "pop" },
   { label: "Cek Status", href: "/cek-status", icon: <PackageSearch size={18} strokeWidth={1.8} />, fx: "drop" },
   { label: "Pesan", href: "/pesan", icon: <ShoppingBag size={18} strokeWidth={1.8} />, fx: "pop" },
+  { label: "Pinjam Alat", href: "/peminjaman-alat", icon: <Wrench size={18} strokeWidth={1.8} />, fx: "pop" },
 ];
 
 const primaryNavItems = [navItems[0], navItems[1], navItems[2], navItems[7]];
@@ -162,15 +163,11 @@ export function Navbar() {
             <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.16em] text-muted sm:text-[11px]">Laundry jemput-antar</span>
           </span>
         </Link>
-        <div className="hidden items-center gap-3 rounded-2xl border border-brand-500/10 bg-brand-500/5 px-4 py-2.5 sm:flex">
-          <span className="grid size-9 place-items-center rounded-xl bg-white text-brand-600 shadow-sm">
-            <Sparkles size={18} aria-hidden="true" />
-          </span>
-          <span>
-            <span className="block text-xs font-extrabold text-brand-700">Lebih praktis</span>
-            <span className="mt-0.5 block text-[11px] font-medium text-muted">Bersih, wangi, tepat waktu</span>
-          </span>
-        </div>
+        <Link href="/pesan#nearby-laundry" className="hidden items-center gap-3 rounded-2xl border border-brand-500/10 bg-brand-500/5 px-4 py-2.5 transition hover:bg-brand-500/10 sm:flex">
+          <span className="grid size-9 place-items-center rounded-xl bg-white text-brand-600 shadow-sm"><MapPin size={18} aria-hidden="true" /></span>
+          <span><span className="block text-xs font-extrabold text-brand-700">Cari laundry sekitar</span><span className="mt-0.5 block text-[11px] font-medium text-muted">Lihat pilihan terdekat dari lokasimu</span></span>
+        </Link>
+        <Link href="/login?role=admin" className="hidden rounded-xl border border-soft px-4 py-2.5 text-sm font-bold text-brand-700 hover:bg-soft/50 sm:inline-flex">Login staf</Link>
       </div>
     </header>
     <div className="pointer-events-none fixed inset-x-0 bottom-12 z-50 flex justify-center px-3 sm:bottom-14 sm:px-6">

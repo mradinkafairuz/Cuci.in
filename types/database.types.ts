@@ -17,6 +17,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      equipment_loans: {
+        Row: {
+          borrower_name: string
+          created_at: string
+          equipment_name: string
+          equipment_slug: string
+          id: string
+          notes: string | null
+          phone: string
+          quantity: number
+          return_date: string
+          start_date: string
+          status: string
+        }
+        Insert: {
+          borrower_name: string
+          created_at?: string
+          equipment_name: string
+          equipment_slug: string
+          id?: string
+          notes?: string | null
+          phone: string
+          quantity?: number
+          return_date: string
+          start_date: string
+          status?: string
+        }
+        Update: {
+          borrower_name?: string
+          created_at?: string
+          equipment_name?: string
+          equipment_slug?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          quantity?: number
+          return_date?: string
+          start_date?: string
+          status?: string
+        }
+        Relationships: []
+      }
       order_logs: {
         Row: {
           changed_by: string | null
@@ -62,6 +104,87 @@ export type Database = {
           },
         ]
       }
+      laundry_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          processing_method: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price: number
+          processing_method?: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          processing_method?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          item_name: string
+          order_id: string
+          processing_method: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          item_name: string
+          order_id: string
+          processing_method?: string
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_name?: string
+          order_id?: string
+          processing_method?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "laundry_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           archived_at: string | null
@@ -81,6 +204,7 @@ export type Database = {
           payment_status: Database["public"]["Enums"]["payment_status"]
           pickup_address: string
           pickup_at: string | null
+          price_quote_status: "MENUNGGU_TIMBANG" | "MENUNGGU_PERSETUJUAN" | "DISETUJUI" | "DITOLAK"
           process_status: Database["public"]["Enums"]["process_status"]
           service_id: string | null
           service_price_per_kg: number | null
@@ -106,6 +230,7 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"]
           pickup_address: string
           pickup_at?: string | null
+          price_quote_status?: "MENUNGGU_TIMBANG" | "MENUNGGU_PERSETUJUAN" | "DISETUJUI" | "DITOLAK"
           process_status?: Database["public"]["Enums"]["process_status"]
           service_id?: string | null
           service_price_per_kg?: number | null
@@ -131,6 +256,7 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"]
           pickup_address?: string
           pickup_at?: string | null
+          price_quote_status?: "MENUNGGU_TIMBANG" | "MENUNGGU_PERSETUJUAN" | "DISETUJUI" | "DITOLAK"
           process_status?: Database["public"]["Enums"]["process_status"]
           service_id?: string | null
           service_price_per_kg?: number | null

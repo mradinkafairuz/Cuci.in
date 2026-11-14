@@ -50,7 +50,7 @@ export async function GET() {
         .order("name"),
       supabase
         .from("laundry_items")
-        .select("id, slug, name, price")
+        .select("id, slug, name, processing_method, price")
         .eq("is_active", true)
         .order("name"),
       supabase
@@ -81,10 +81,11 @@ export async function GET() {
           estimateDays: service.estimated_days,
           icon: getServiceIcon(service.name),
         })),
-        items: itemsResult.data.map((item) => ({
+        items: (itemsResult.data ?? []).map((item) => ({
           id: item.id,
           slug: item.slug,
           name: item.name,
+          processingMethod: item.processing_method,
           price: Number(item.price),
         })),
         equipment: equipmentResult.data.map((equipment) => ({

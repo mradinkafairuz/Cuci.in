@@ -21,6 +21,8 @@ export function usePublicCatalog() {
   const [catalog, setCatalog] = useState<PublicCatalog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usingLocalServices, setUsingLocalServices] = useState(false);
+  const [usingLocalItems, setUsingLocalItems] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -33,7 +35,12 @@ export function usePublicCatalog() {
         }
         if (active) setCatalog({ services: result.services, items: result.items, equipment: result.equipment, businessHours: result.businessHours });
       } catch (loadError) {
-        if (active) setError(loadError instanceof Error ? loadError.message : "Katalog tidak dapat dimuat.");
+        if (active) {
+          setCatalog({ services: LOCAL_LAUNDRY_SERVICES, items: LOCAL_LAUNDRY_ITEMS });
+          setUsingLocalServices(true);
+          setUsingLocalItems(true);
+          setError("");
+        }
       } finally {
         if (active) setIsLoading(false);
       }
@@ -43,5 +50,5 @@ export function usePublicCatalog() {
     return () => { active = false; };
   }, []);
 
-  return { catalog, isLoading, error };
+  return { catalog, isLoading, error, usingLocalServices, usingLocalItems };
 }

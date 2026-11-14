@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { getStaffSession } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 import { generateOrderCode } from "@/lib/utils/generate-order-code";
 import type { OrderTracking } from "@/types";
+import type { Database } from "@/types/database.types";
 
 export const runtime = "nodejs";
 
@@ -82,6 +84,58 @@ function formatEstimatedDone(date: string | null): string {
     : "Menunggu konfirmasi";
 }
 
+function isMissingPriceQuoteSchema(error: { code?: string; message?: string }) {
+  return error.code === "42703"
+    || error.code === "PGRST204"
+    || Boolean(error.message && /order_type|price_quote_status/i.test(error.message));
+}
+
+export async function GET() {
+  const session = await getStaffSession();
+  if (!session) return NextResponse.json({ error: "Silakan login sebagai admin atau petugas." }, { status: 401 });
+
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("orders")
+      .select("id, order_code, order_type, process_status, price_quote_status, weight_kg, total_price, created_at, customer_name, contact_phone, service_id, services(name, price_per_kg), order_items(item_name, processing_method, unit_price, quantity)")
+      .in("price_quote_status", ["MENUNGGU_TIMBANG", "MENUNGGU_PERSETUJUAN"])
+      .order("created_at", { ascending: true })
+      .limit(100);
+    if (error) throw error;
+
+    const orders = data.map((row) => {
+      const service = Array.isArray(row.services) ? row.services[0] : row.services;
+      return {
+        id: row.id,
+        code: row.order_code,
+        orderType: row.order_type,
+        quoteStatus: row.price_quote_status,
+        processStatus: row.process_status,
+        customerName: row.customer_name ?? "Pelanggan",
+        phone: row.contact_phone,
+        serviceId: row.service_id,
+        serviceName: service?.name ?? (row.order_type === "SATUAN" ? "Cuci Satuan" : "Layanan laundry"),
+        pricePerKg: service ? Number(service.price_per_kg) : null,
+        weightKg: row.weight_kg === null ? null : Number(row.weight_kg),
+        total: row.total_price === null ? null : Number(row.total_price),
+        createdAt: row.created_at,
+        items: row.order_items.map((item) => ({
+          name: item.item_name,
+          processingMethod: item.processing_method,
+          unitPrice: Number(item.unit_price),
+          quantity: item.quantity,
+        })),
+      };
+    });
+
+    return NextResponse.json({ orders }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("Failed to load Supabase order quote queue:", error);
+    return NextResponse.json({ error: "Antrean pesanan belum dapat dimuat." }, { status: 503 });
+  }
+}
+
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin) {
@@ -149,7 +203,7 @@ export async function POST(request: Request) {
     } else {
       const { data: item, error } = await supabase
         .from("laundry_items")
-        .select("id, name, price")
+        .select("id, name, processing_method, price")
         .eq("id", input.itemId)
         .eq("is_active", true)
         .maybeSingle();
@@ -162,15 +216,35 @@ export async function POST(request: Request) {
       const unitPrice = Number(item.price);
       totalPrice = unitPrice * quantity;
       serviceName = `${item.name} (${quantity} item)`;
-      orderItem = { itemId: item.id, itemName: item.name, unitPrice, quantity };
+      orderItem = { itemId: item.id, itemName: item.name, processingMethod: item.processing_method, unitPrice, quantity };
     }
 
     let createdOrder: { id: string; order_code: string } | null = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const orderCode = generateOrderCode();
-      const { data, error } = await supabase
+      const orderValues: Database["public"]["Tables"]["orders"]["Insert"] = {
+        order_code: orderCode,
+        customer_id: null,
+        customer_name: input.customerName,
+        contact_phone: input.phone,
+        pickup_address: input.pickupAddress,
+        service_id: serviceId,
+        order_type: input.orderType,
+        price_quote_status: priceQuoteStatus,
+        process_status: "DITERIMA" as const,
+        payment_status: "UNPAID" as const,
+        weight_kg: null,
+        total_price: totalPrice,
+        estimated_done_at: estimatedDoneAt,
+      };
+      let result = await supabase
         .from("orders")
-        .insert({
+        .insert(orderValues)
+        .select("id, order_code")
+        .single();
+
+      if (result.error && isMissingPriceQuoteSchema(result.error)) {
+        const legacyValues = {
           order_code: orderCode,
           customer_id: null,
           customer_name: input.customerName,
@@ -185,9 +259,15 @@ export async function POST(request: Request) {
           weight_kg: null,
           total_price: totalPrice,
           estimated_done_at: estimatedDoneAt,
-        })
-        .select("id, order_code")
-        .single();
+        };
+        result = await supabase
+          .from("orders")
+          .insert(legacyValues)
+          .select("id, order_code")
+          .single();
+      }
+
+      const { data, error } = result;
 
       if (!error) {
         createdOrder = data;
@@ -203,6 +283,7 @@ export async function POST(request: Request) {
         order_id: createdOrder.id,
         item_id: orderItem.itemId,
         item_name: orderItem.itemName,
+        processing_method: orderItem.processingMethod,
         unit_price: orderItem.unitPrice,
         quantity: orderItem.quantity,
       });

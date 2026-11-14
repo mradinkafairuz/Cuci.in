@@ -9,6 +9,7 @@ export type OrderStatus =
   | "dibatalkan";
 
 export type PaymentStatus = "belum_bayar" | "lunas";
+export type PriceQuoteStatus = "menunggu_timbang" | "menunggu_persetujuan" | "disetujui" | "ditolak";
 
 export interface LaundryService {
   id: string;
@@ -24,6 +25,7 @@ export interface LaundryItem {
   id: string;
   slug: string;
   name: string;
+  processingMethod: string;
   price: number;
 }
 

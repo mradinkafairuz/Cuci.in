@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { getOrderByCode } from "@/lib/services/orders";
 import { isValidOrderCode } from "@/lib/utils/order-code";
 import type { OrderStatus, OrderTracking } from "@/types";
+import { OrderProgress } from "@/components/landing/OrderProgress";
 
 const statusLabel: Record<OrderStatus, string> = {
   menunggu: "Menunggu",
@@ -49,6 +50,8 @@ export function OrderStatusForm({ initialCode = "" }: { initialCode?: string }) 
   const [fieldError, setFieldError] = useState("");
   const [state, setState] = useState<ViewState>("idle");
   const [order, setOrder] = useState<OrderTracking | null>(null);
+  const [quoteDecisionLoading, setQuoteDecisionLoading] = useState(false);
+  const [quoteDecisionError, setQuoteDecisionError] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
