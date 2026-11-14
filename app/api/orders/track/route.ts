@@ -3,23 +3,34 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isValidOrderCode } from "@/lib/utils/order-code";
 import { checkTrackingRateLimit } from "@/lib/utils/tracking-rate-limit";
 import type { OrderStatus, OrderTracking } from "@/types";
-import type { OrderProcessStatus } from "@/types/database.types";
+import type { Database } from "@/types/database.types";
 
 export const dynamic = "force-dynamic";
 
-const publicStatus: Record<OrderProcessStatus, OrderStatus> = {
-  MENUNGGU: "menunggu",
+const publicStatus: Record<Database["public"]["Enums"]["process_status"], OrderStatus> = {
   DITERIMA: "diterima",
-  DICUCI: "dicuci",
-  DISETRIKA: "disetrika",
+  DIPROSES: "dicuci",
   SIAP_DIAMBIL: "siap_diambil",
   SELESAI: "selesai",
 };
+
+const publicQuoteStatus = {
+  MENUNGGU_TIMBANG: "menunggu_timbang",
+  MENUNGGU_PERSETUJUAN: "menunggu_persetujuan",
+  DISETUJUI: "disetujui",
+  DITOLAK: "ditolak",
+} as const;
 
 function formatEstimatedDone(date: string | null): string {
   return date
     ? new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeZone: "Asia/Jakarta" }).format(new Date(date))
     : "Menunggu konfirmasi";
+}
+
+function isMissingPriceQuoteSchema(error: { code?: string; message?: string }) {
+  return error.code === "42703"
+    || error.code === "PGRST204"
+    || Boolean(error.message && /order_type|price_quote_status/i.test(error.message));
 }
 
 export async function GET(request: Request) {
@@ -44,17 +55,31 @@ export async function GET(request: Request) {
 
   try {
     const supabase = createSupabaseAdminClient();
-    const { data: row, error } = await supabase
+    const { data: currentRow, error } = await supabase
       .from("orders")
-      .select("id, order_code, process_status, order_type, service_id, estimated_done_at")
+      .select("id, order_code, process_status, order_type, price_quote_status, service_id, weight_kg, total_price, estimated_done_at")
       .eq("order_code", code)
       .maybeSingle();
-    if (error) throw error;
+    let row = currentRow;
+    if (error && isMissingPriceQuoteSchema(error)) {
+      const { data: legacyRow, error: legacyError } = await supabase
+        .from("orders")
+        .select("id, order_code, process_status, service_id, weight_kg, total_price, estimated_done_at")
+        .eq("order_code", code)
+        .maybeSingle();
+      if (legacyError) throw legacyError;
+      row = legacyRow
+        ? { ...legacyRow, order_type: "KILOAN" as const, price_quote_status: "DISETUJUI" as const }
+        : null;
+    } else if (error) {
+      throw error;
+    }
     if (!row) {
       return NextResponse.json({ error: "Pesanan tidak ditemukan." }, { status: 404 });
     }
 
     let serviceName = "Cuci Satuan";
+    let processingMethod: string | null = null;
     if (row.order_type === "KILOAN" && row.service_id) {
       const { data: service, error: serviceError } = await supabase
         .from("services")
@@ -63,13 +88,19 @@ export async function GET(request: Request) {
         .maybeSingle();
       if (serviceError) throw serviceError;
       serviceName = service?.name ?? "Layanan laundry";
+      processingMethod = serviceName;
     } else if (row.order_type === "SATUAN") {
       const { data: items, error: itemsError } = await supabase
         .from("order_items")
-        .select("item_name, quantity")
+        .select("item_name, processing_method, quantity")
         .eq("order_id", row.id);
-      if (itemsError) throw itemsError;
-      serviceName = items.map((item) => `${item.item_name} (${item.quantity} item)`).join(", ") || "Cuci Satuan";
+      if (itemsError && itemsError.code !== "42P01" && itemsError.code !== "PGRST205") throw itemsError;
+      if (itemsError) {
+        serviceName = "Cuci Satuan";
+      } else {
+        serviceName = items.map((item) => `${item.item_name} (${item.quantity} item)`).join(", ") || "Cuci Satuan";
+        processingMethod = [...new Set(items.map((item) => item.processing_method))].join(", ") || null;
+      }
     }
 
     const order: OrderTracking = {
@@ -77,6 +108,10 @@ export async function GET(request: Request) {
       serviceName,
       status: publicStatus[row.process_status],
       estimatedDone: formatEstimatedDone(row.estimated_done_at),
+      weightKg: row.weight_kg === null ? null : Number(row.weight_kg),
+      total: row.total_price === null ? null : Number(row.total_price),
+      priceQuoteStatus: publicQuoteStatus[row.price_quote_status],
+      processingMethod,
     };
     return NextResponse.json({ order }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
