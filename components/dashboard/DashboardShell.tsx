@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { ArrowLeft, LayoutDashboard, Shirt, Users, WashingMachine } from "lucide-react";
-import { LogoutButton } from "@/components/dashboard/LogoutButton";
+import { ArrowLeft, LayoutDashboard, LogOut, Shirt, Users, WashingMachine } from "lucide-react";
 
 export type DashboardRole = "pelanggan" | "petugas" | "admin";
 
 const roleInfo = {
   pelanggan: { title: "Dashboard Pelanggan", home: "/dashboard", icon: LayoutDashboard, links: [{ href: "/dashboard", label: "Ringkasan" }, { href: "/pesan", label: "Buat pesanan" }, { href: "/cek-status", label: "Lacak pesanan" }] },
-  petugas: { title: "Dashboard Petugas", home: "/petugas", icon: WashingMachine, links: [{ href: "/petugas", label: "Antrean pesanan" }, { href: "/peminjaman-alat", label: "Peminjaman alat" }] },
-  admin: { title: "Dashboard Admin", home: "/admin", icon: Users, links: [{ href: "/admin", label: "Ringkasan" }, { href: "/peminjaman-alat", label: "Peminjaman alat" }] },
+  petugas: { title: "Dashboard Petugas", home: "/petugas", icon: WashingMachine, links: [{ href: "/petugas", label: "Antrean pesanan" }] },
+  admin: { title: "Dashboard Admin", home: "/admin", icon: Users, links: [{ href: "/admin", label: "Ringkasan" }] },
 } satisfies Record<DashboardRole, { title: string; home: string; icon: typeof LayoutDashboard; links: { href: string; label: string }[] }>;
 
 export function DashboardShell({ role, children }: { role: DashboardRole; children: React.ReactNode }) {
@@ -30,9 +29,10 @@ export function DashboardShell({ role, children }: { role: DashboardRole; childr
           <nav aria-label={`Navigasi ${info.title}`} className="flex gap-2 overflow-x-auto lg:flex-col">
             {info.links.map((link) => <Link key={link.href} href={link.href} className="shrink-0 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted hover:bg-soft/60 hover:text-brand-700">{link.label}</Link>)}
           </nav>
-          <div className="mt-5 hidden border-t border-soft pt-4 lg:block"><LogoutButton /></div>
+          <div className="mt-5 hidden border-t border-soft pt-4 lg:block"><span className="flex items-center gap-2 px-3 py-2 text-sm text-muted"><LogOut size={15} /> Keluar (demo)</span></div>
         </aside>
         <main className="min-w-0">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"><strong>Mode pratinjau</strong><span>Data contoh; belum ada login dan pembatasan role. Perubahan belum tersimpan ke server.</span></div>
           {children}
         </main>
       </div>

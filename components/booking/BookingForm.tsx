@@ -12,7 +12,7 @@ import { formatRupiah } from "@/lib/utils/format";
 import type { OrderTracking } from "@/types";
 
 export function BookingForm({ initialServiceId }: { initialServiceId?: string }) {
-  const { catalog, isLoading: catalogLoading, error: catalogError, usingLocalServices } = usePublicCatalog();
+  const { catalog, isLoading: catalogLoading, error: catalogError } = usePublicCatalog();
   const services = catalog?.services ?? [];
   const [serviceId, setServiceId] = useState("");
   const [createdOrder, setCreatedOrder] = useState<OrderTracking | null>(null);
@@ -43,26 +43,11 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
       return;
     }
     if (!isValidIndonesianPhone(phone)) {
-      setSubmitError("Masukkan nomor WhatsApp yang valid.");
+      setSubmitError("Masukkan nomor WhatsApp Indonesia yang valid, misalnya 081234567890.");
       return;
     }
     if (pickupAddress.length < 8) {
       setSubmitError("Alamat penjemputan perlu mencantumkan detail yang cukup.");
-      return;
-    }
-
-    if (usingLocalServices) {
-      const message = [
-        "Halo Cuci.in, saya ingin memesan layanan kiloan.",
-        `Layanan: ${selected.name}`,
-        `Tarif: ${formatRupiah(selected.pricePerKg)} per kg`,
-        `Estimasi: ${selected.estimateDays} hari`,
-        `Nama: ${customerName}`,
-        `Nomor WhatsApp: ${phone}`,
-        `Alamat penjemputan: ${pickupAddress}`,
-        "Mohon konfirmasi ketersediaan layanan, berat cucian, dan total harga. Terima kasih.",
-      ].join("\n");
-      window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
       return;
     }
 
@@ -93,7 +78,6 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
         <h1 className="mt-2 text-3xl font-bold text-ink">Pesanan Anda siap dilacak</h1>
         <p className="mt-3 text-muted">Kode pesanan Anda:</p>
         <p className="mt-1 font-mono text-2xl font-bold text-brand-700">{createdOrder.code}</p>
-        <p className="mx-auto mt-3 max-w-md text-sm text-muted">Petugas akan menimbang cucian dan mengirim total harga untuk Anda setujui sebelum pengerjaan dimulai.</p>
         <div className="mx-auto mt-4 max-w-md rounded-xl bg-soft/50 p-4 text-left text-sm">
           <p className="font-semibold text-ink">{createdOrder.customerName}</p>
           <p className="mt-1 text-muted">{createdOrder.phone}</p>
@@ -109,7 +93,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate data-wa-order-type="KILOAN" data-wa-selection={selected?.name ?? ""} className="mx-auto max-w-4xl space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="mx-auto max-w-4xl space-y-6">
       <section>
         <h2 className="text-xl font-bold text-ink">1. Pilih layanan</h2>
         <p className="mt-1 text-sm text-muted">Tarif yang ditampilkan per kilogram. Tagihan akhir mengikuti berat aktual setelah cucian ditimbang.</p>
@@ -152,10 +136,11 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
           {selected && <Badge><Clock size={12} className="mr-1" /> Estimasi {selected.estimateDays} hari</Badge>}
         </div>
         <button type="submit" disabled={isSubmitting || catalogLoading || !selected} className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-wait disabled:opacity-60">
-          <PackageCheck size={18} /> {isSubmitting ? "Menyimpan..." : usingLocalServices ? "Pesan via WhatsApp" : "Buat pesanan"}
+          <PackageCheck size={18} /> {isSubmitting ? "Menyimpan..." : "Buat pesanan"}
         </button>
       </Card>
       {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{submitError}</p>}
+      <p className="text-center text-xs text-muted">Pesanan akan disimpan ke database laundry.</p>
     </form>
   );
 }
