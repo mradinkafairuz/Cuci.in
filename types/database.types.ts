@@ -6,6 +6,9 @@
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type OrderProcessStatus =
+  Database["public"]["Enums"]["process_status"]
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -61,61 +64,76 @@ export type Database = {
       }
       orders: {
         Row: {
+          archived_at: string | null
+          capacity_approval_status: "NOT_REQUIRED" | "PENDING" | "APPROVED" | "REJECTED"
           contact_phone: string
           created_at: string
           customer_id: string | null
+          customer_message: string | null
           customer_name: string | null
           estimated_done_at: string | null
           handled_by: string | null
           id: string
           notes: string | null
           order_code: string
+          order_type: "KILOAN" | "SATUAN"
           paid_at: string | null
           payment_status: Database["public"]["Enums"]["payment_status"]
           pickup_address: string
           pickup_at: string | null
           process_status: Database["public"]["Enums"]["process_status"]
-          service_id: string
+          service_id: string | null
+          service_price_per_kg: number | null
           total_price: number | null
           updated_at: string
           weight_kg: number | null
         }
         Insert: {
+          archived_at?: string | null
+          capacity_approval_status?: "NOT_REQUIRED" | "PENDING" | "APPROVED" | "REJECTED"
           contact_phone: string
           created_at?: string
           customer_id?: string | null
+          customer_message?: string | null
           customer_name?: string | null
           estimated_done_at?: string | null
           handled_by?: string | null
           id?: string
           notes?: string | null
           order_code: string
+          order_type?: "KILOAN" | "SATUAN"
           paid_at?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           pickup_address: string
           pickup_at?: string | null
           process_status?: Database["public"]["Enums"]["process_status"]
-          service_id: string
+          service_id?: string | null
+          service_price_per_kg?: number | null
           total_price?: number | null
           updated_at?: string
           weight_kg?: number | null
         }
         Update: {
+          archived_at?: string | null
+          capacity_approval_status?: "NOT_REQUIRED" | "PENDING" | "APPROVED" | "REJECTED"
           contact_phone?: string
           created_at?: string
           customer_id?: string | null
+          customer_message?: string | null
           customer_name?: string | null
           estimated_done_at?: string | null
           handled_by?: string | null
           id?: string
           notes?: string | null
           order_code?: string
+          order_type?: "KILOAN" | "SATUAN"
           paid_at?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
           pickup_address?: string
           pickup_at?: string | null
           process_status?: Database["public"]["Enums"]["process_status"]
-          service_id?: string
+          service_id?: string | null
+          service_price_per_kg?: number | null
           total_price?: number | null
           updated_at?: string
           weight_kg?: number | null
@@ -143,6 +161,180 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      laundry_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price: number
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string | null
+          item_name: string
+          order_id: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          item_name: string
+          order_id: string
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          item_name?: string
+          order_id?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "laundry_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_settings: {
+        Row: {
+          business_hours: Json
+          daily_capacity_kg: number
+          id: number
+          is_accepting_orders: boolean
+          updated_at: string
+        }
+        Insert: {
+          business_hours?: Json
+          daily_capacity_kg?: number
+          id?: number
+          is_accepting_orders?: boolean
+          updated_at?: string
+        }
+        Update: {
+          business_hours?: Json
+          daily_capacity_kg?: number
+          id?: number
+          is_accepting_orders?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      b2b_equipment: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number | null
+          price_unit: "hari" | "minggu" | "bulan" | null
+          quantity_available: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number | null
+          price_unit?: "hari" | "minggu" | "bulan" | null
+          quantity_available?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number | null
+          price_unit?: "hari" | "minggu" | "bulan" | null
+          quantity_available?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      equipment_loans: {
+        Row: {
+          borrower_name: string
+          created_at: string
+          equipment_name: string
+          equipment_slug: string
+          id: string
+          notes: string | null
+          phone: string
+          quantity: number
+          return_date: string
+          start_date: string
+          status: "MENUNGGU" | "DISETUJUI" | "DIKEMBALIKAN" | "DITOLAK"
+        }
+        Insert: {
+          borrower_name: string
+          created_at?: string
+          equipment_name: string
+          equipment_slug: string
+          id?: string
+          notes?: string | null
+          phone: string
+          quantity?: number
+          return_date: string
+          start_date: string
+          status?: "MENUNGGU" | "DISETUJUI" | "DIKEMBALIKAN" | "DITOLAK"
+        }
+        Update: {
+          borrower_name?: string
+          created_at?: string
+          equipment_name?: string
+          equipment_slug?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          quantity?: number
+          return_date?: string
+          start_date?: string
+          status?: "MENUNGGU" | "DISETUJUI" | "DIKEMBALIKAN" | "DITOLAK"
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -206,6 +398,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dashboard_metrics: {
+        Args: {
+          p_end: string
+          p_start: string
+        }
+        Returns: {
+          pending_approval_count: number
+          paid_revenue: number
+          total_orders: number
+          used_today_kg: number
+        }[]
+      }
       get_my_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
@@ -213,7 +417,15 @@ export type Database = {
     }
     Enums: {
       payment_status: "UNPAID" | "PAID"
-      process_status: "DITERIMA" | "DIPROSES" | "SIAP_DIAMBIL" | "SELESAI"
+      process_status:
+        | "MENUNGGU"
+        | "DITERIMA"
+        | "DIPROSES"
+        | "DICUCI"
+        | "DISETRIKA"
+        | "SIAP_DIAMBIL"
+        | "SELESAI"
+        | "DIBATALKAN"
       user_role: "admin" | "petugas" | "pelanggan"
     }
     CompositeTypes: {
@@ -343,7 +555,16 @@ export const Constants = {
   public: {
     Enums: {
       payment_status: ["UNPAID", "PAID"],
-      process_status: ["DITERIMA", "DIPROSES", "SIAP_DIAMBIL", "SELESAI"],
+      process_status: [
+        "MENUNGGU",
+        "DITERIMA",
+        "DIPROSES",
+        "DICUCI",
+        "DISETRIKA",
+        "SIAP_DIAMBIL",
+        "SELESAI",
+        "DIBATALKAN",
+      ],
       user_role: ["admin", "petugas", "pelanggan"],
     },
   },

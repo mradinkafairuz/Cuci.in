@@ -44,12 +44,33 @@ Buka http://localhost:3000
 - Pencarian laundry sekitar memakai izin lokasi browser dan data OpenStreetMap.
 
 ## Supabase
-1. Install dependency dengan `npm install` agar versi yang terkunci di `package-lock.json` dipakai.
-2. Salin `.env.example` menjadi `.env.local`, lalu isi `SUPABASE_URL` dan `SUPABASE_SECRET_KEY` dari pengaturan API proyek Supabase.
-3. Pastikan tabel `services` dan `laundry_items` berisi data aktif. Katalog halaman pemesanan bersumber dari dua tabel tersebut.
-4. Jalankan `npm run dev`, lalu uji pemesanan kiloan, cuci satuan, dan pelacakan kode dari browser.
+1. Salin `.env.example` menjadi `.env.local`. Isi `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` dari pengaturan API proyek. Secret key hanya boleh berada di server; jangan pernah menaruhnya pada variabel `NEXT_PUBLIC_*`.
+2. Tinjau perubahan migrasi sebelum menerapkannya. Migrasi fitur peminjaman membatasi kolom `orders` yang dapat di-update oleh role `authenticated`; aplikasi ini mengelola perubahan lewat API server, tetapi aplikasi lain yang memakai database bersama mungkin perlu menyesuaikan query update-nya. Migrasi pesan pelanggan hanya menambahkan kolom pesan dengan batas 500 karakter. Setelah kompatibilitas dipastikan, terapkan migrasi:
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <project-ref>
+   npx supabase db push
+   ```
+3. Buat akun admin melalui Supabase Dashboard → Authentication → Users. Setelah akun dibuat, tetapkan role-nya melalui SQL Editor:
+   ```sql
+   update public.profiles
+   set role = 'admin'
+   where id = (select id from auth.users where email = 'admin@contoh.com');
+   ```
+   Ganti email contoh dengan email admin. Akun pelanggan biasa tidak mendapat akses admin.
+4. Untuk petugas, buat akun di Supabase Auth lalu tetapkan role `petugas`:
+   ```sql
+   update public.profiles
+   set role = 'petugas'
+   where id = (select id from auth.users where email = 'petugas@contoh.com');
+   ```
+5. Jalankan `npm run dev`. Semua akun operasional masuk melalui `/login`; setelah role diverifikasi, admin diarahkan ke `/admin` dan petugas ke `/petugas`. Jika belum login, membuka salah satu panel akan mengarahkan pengguna ke `/login`.
 
-Secret key hanya dipakai di API server dan tidak boleh dipindahkan ke variabel `NEXT_PUBLIC_*` atau kode browser. Kode pesanan baru memakai format `LDR-XXXX-XXXX`; kode panjang lama tetap dapat dilacak. Endpoint tracking membatasi data yang ditampilkan dan menerapkan batas 20 percobaan per 15 menit per IP pada tiap instance aplikasi. Karena limiter ini tidak berbagi state antar-instance dan dapat direset saat server restart, production multi-instance tetap perlu rate limit terpusat di WAF/platform atau shared store. Dashboard staf belum terhubung karena halaman tersebut belum memiliki autentikasi dan otorisasi staf.
+Panel `/admin` mengelola seluruh pesanan, layanan, harga, peminjaman alat, kuota, jam operasional, dan data bisnis. Petugas hanya dapat melihat pesanan, mengubah status, mencatat berat/pembayaran, dan mengirim pesan singkat kepada pelanggan; pesan itu tampil pada halaman `/cek-status`. Pembuatan/pengarsipan pesanan serta persetujuan kuota hanya untuk admin. Pengaturan yang diedit disimpan sebagai draft di browser dan baru dikirim setelah admin menekan **Simpan perubahan**. Halaman `/peminjaman-alat` menerima permintaan tanpa login pelanggan; harga alat yang belum diatur ditampilkan sebagai “Tanya ke admin”. Enam jenis alat awal dimasukkan oleh migrasi Supabase.
+
+Daftar pesanan di panel dimuat 30 item per halaman, sedangkan statistik pendapatan dan kuota dihitung di database untuk menghindari pengiriman seluruh riwayat pesanan ke browser. Terapkan semua migrasi sebelum memakai fitur baru.
+
+Kode pesanan baru memakai format `LDR-XXXX-XXXX`; kode panjang lama tetap dapat dilacak. Endpoint tracking membatasi data yang ditampilkan dan menerapkan batas 20 percobaan per 15 menit per IP pada tiap instance aplikasi. Karena limiter ini tidak berbagi state antar-instance dan dapat direset saat server restart, production multi-instance tetap perlu rate limit terpusat di WAF/platform atau shared store.
 
 ## Penjelasan file
 | File | Fungsi |
@@ -62,6 +83,7 @@ Secret key hanya dipakai di API server dan tidak boleh dipindahkan ke variabel `
 | `lib/mock-data/landing.ts` | Jam operasional dan panduan pemesanan statis |
 | `app/api/*` | API server untuk katalog, pembuatan pesanan, dan pelacakan Supabase |
 | `lib/supabase/admin.ts` | Klien Supabase server-only |
+| `lib/supabase/browser.ts` | Klien Supabase browser dengan public anon/publishable key |
 | `types/database.types.ts` | Tipe tabel dan enum Supabase yang digunakan aplikasi |
 | `lib/services/orders.ts` | Klien API pelacakan pesanan |
 | `types/index.ts` | Tipe frontend |

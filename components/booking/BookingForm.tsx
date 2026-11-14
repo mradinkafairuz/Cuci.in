@@ -85,6 +85,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
           <p className="mt-2 font-medium text-ink">{createdOrder.serviceName} · estimasi {createdOrder.estimatedDone}</p>
         </div>
         <p className="mt-4 text-sm text-muted">Simpan kode ini untuk melihat perkembangan pesanan Anda.</p>
+        {createdOrder.capacityApprovalStatus === "pending" && <p className="mx-auto mt-3 max-w-md rounded-xl bg-amber-50 px-4 py-3 text-left text-sm text-amber-900">Permintaan Anda tersimpan dan menunggu persetujuan admin untuk memastikan ketersediaan kuota laundry.</p>}
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link href={`/cek-status?kode=${createdOrder.code}`} className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-600"><PackageCheck size={16} /> Lacak pesanan</Link>
         </div>
