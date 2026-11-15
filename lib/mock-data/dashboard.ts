@@ -16,8 +16,10 @@ export const dashboardOrders: DashboardOrder[] = [];
 export const statusLabels: Record<OrderStatus, string> = {
   menunggu: "Menunggu",
   diterima: "Diterima",
+  diproses: "Diproses",
   dicuci: "Sedang dicuci",
   disetrika: "Disetrika",
   siap_diambil: "Siap diambil",
   selesai: "Selesai",
+  dibatalkan: "Dibatalkan",
 };

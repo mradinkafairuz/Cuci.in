@@ -18,18 +18,58 @@ const navItems: LiquidNavItem[] = [
   { label: "Pinjam Alat", href: "/peminjaman-alat", icon: <Wrench size={18} strokeWidth={1.8} />, fx: "pop" },
 ];
 
-const mobileNavItems = [navItems[0], navItems[1], navItems[2], navItems[7]];
-const mobileMoreItems = [navItems[3], navItems[4], navItems[5], navItems[6], navItems[8]];
+const primaryNavItems = [navItems[0], navItems[1], navItems[2], navItems[7]];
+const moreNavItems = [navItems[3], navItems[4], navItems[5], navItems[6]];
+
+function MoreMenu({ id, active, onSelect, className }: {
+  id: string;
+  active: number;
+  onSelect: (index: number) => void;
+  className: string;
+}) {
+  return <div id={id} role="group" aria-label="Tautan lainnya" className={className}>
+    {moreNavItems.map((item) => {
+      const index = navItems.indexOf(item);
+      return (
+        <a
+          key={item.label}
+          href={item.href}
+          aria-current={active === index ? "page" : undefined}
+          onClick={() => onSelect(index)}
+          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
+            active === index ? "bg-brand-500/10 text-brand-700" : "text-muted hover:bg-soft/60 hover:text-brand-700"
+          }`}
+        >
+          <span aria-hidden="true">{item.icon}</span>
+          <span>{item.label}</span>
+        </a>
+      );
+    })}
+  </div>;
+}
 
 export function Navbar() {
   const pathname = usePathname();
-  const routeActive = pathname === "/pesan-satuan" ? 3 : pathname === "/pesan" ? 7 : pathname === "/cek-status" ? 6 : pathname === "/peminjaman-alat" ? 8 : 0;
+  const routeActive = pathname === "/sewa-alat" ? -1 : pathname === "/pesan-satuan" ? 3 : pathname === "/pesan" ? 7 : pathname === "/cek-status" ? 6 : 0;
   const headerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(routeActive);
   const [isPastHeader, setIsPastHeader] = useState(pathname !== "/");
   const [isFooterVisible, setIsFooterVisible] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const isNavbarVisible = isPastHeader && !isFooterVisible;
+  const activePrimaryIndex = primaryNavItems.findIndex((item) => navItems.indexOf(item) === active);
+  const isMoreActive = moreNavItems.some((item) => navItems.indexOf(item) === active);
+  const desktopNavItems: LiquidNavItem[] = [
+    ...primaryNavItems,
+    {
+      label: "Lainnya",
+      icon: <MoreHorizontal size={18} strokeWidth={1.8} />,
+      fx: "none",
+      "aria-current": isMoreOpen || isMoreActive ? "page" : undefined,
+      "aria-expanded": isMoreOpen,
+      "aria-controls": "desktop-nav-more",
+    },
+  ];
 
   useEffect(() => {
     const header = headerRef.current;
@@ -139,14 +179,41 @@ export function Navbar() {
             : "invisible translate-y-8 opacity-0"
         }`}
       >
-        <div className="hidden min-[1025px]:flex min-[1025px]:justify-center">
-          <LiquidNavbar
-            items={navItems}
-            active={active}
-            onChange={(index) => setActive(index)}
-            compact={false}
-            className={`pointer-events-auto mx-auto ${isNavbarVisible ? "" : "pointer-events-none"}`}
-          />
+        <div
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setIsMoreOpen(false);
+          }}
+          className={`hidden min-[1025px]:flex min-[1025px]:items-center min-[1025px]:justify-center ${
+            isNavbarVisible ? "pointer-events-auto" : "pointer-events-none"
+          }`}
+        >
+          <div className="relative pointer-events-auto">
+            <LiquidNavbar
+              items={desktopNavItems}
+              active={isMoreOpen ? -1 : activePrimaryIndex}
+              onChange={(index) => {
+                if (index === primaryNavItems.length) {
+                  setIsMoreOpen((open) => !open);
+                  return;
+                }
+                setActive(navItems.indexOf(primaryNavItems[index]));
+                setIsMoreOpen(false);
+              }}
+              compact={false}
+              className="pointer-events-auto"
+            />
+            <MoreMenu
+              id="desktop-nav-more"
+              active={active}
+              onSelect={(index) => {
+                setActive(index);
+                setIsMoreOpen(false);
+              }}
+              className={`absolute bottom-full right-0 mb-2 w-56 gap-1 rounded-2xl border border-soft bg-white p-2 shadow-xl ${
+                isMoreOpen ? "grid" : "hidden"
+              }`}
+            />
+          </div>
         </div>
         <nav
           aria-label="Navigasi utama"
@@ -158,14 +225,17 @@ export function Navbar() {
           }`}
         >
           <div className="grid grid-cols-5 gap-1">
-            {mobileNavItems.map((item) => {
+            {primaryNavItems.map((item) => {
               const index = navItems.indexOf(item);
               return (
                 <a
                   key={item.label}
                   href={item.href}
                   aria-current={active === index ? "page" : undefined}
-                  onClick={() => setActive(index)}
+                  onClick={() => {
+                    setActive(index);
+                    setIsMoreOpen(false);
+                  }}
                   className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
                     active === index ? "bg-brand-500/10 text-brand-700" : "text-muted hover:bg-soft/60 hover:text-brand-700"
                   }`}
@@ -182,7 +252,7 @@ export function Navbar() {
               aria-label={isMoreOpen ? "Tutup menu lainnya" : "Buka menu lainnya"}
               onClick={() => setIsMoreOpen((open) => !open)}
               className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
-                isMoreOpen || mobileMoreItems.some((item) => navItems.indexOf(item) === active)
+                isMoreOpen || isMoreActive
                   ? "bg-brand-500/10 text-brand-700"
                   : "text-muted hover:bg-soft/60 hover:text-brand-700"
               }`}
@@ -191,33 +261,17 @@ export function Navbar() {
               <span>Lainnya</span>
             </button>
           </div>
-          <div
+          <MoreMenu
             id="mobile-nav-more"
+            active={active}
+            onSelect={(index) => {
+              setActive(index);
+              setIsMoreOpen(false);
+            }}
             className={`absolute bottom-full right-2 mb-2 w-56 gap-1 rounded-2xl border border-soft bg-white p-2 shadow-xl ${
               isMoreOpen ? "grid" : "hidden"
             }`}
-          >
-            {mobileMoreItems.map((item) => {
-              const index = navItems.indexOf(item);
-              return (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  aria-current={active === index ? "page" : undefined}
-                  onClick={() => {
-                    setActive(index);
-                    setIsMoreOpen(false);
-                  }}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 ${
-                    active === index ? "bg-brand-500/10 text-brand-700" : "text-muted hover:bg-soft/60 hover:text-brand-700"
-                  }`}
-                >
-                  <span aria-hidden="true">{item.icon}</span>
-                  <span>{item.label}</span>
-                </a>
-              );
-            })}
-          </div>
+          />
         </nav>
       </div>
     </div>

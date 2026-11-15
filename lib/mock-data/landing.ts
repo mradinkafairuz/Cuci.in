@@ -2,7 +2,7 @@ import type { OperatingHour } from "@/types";
 
 export const operatingHours: OperatingHour[] = [
   { day: "Senin - Jumat", open: "07.00", close: "20.00" },
-  { day: "Sabtu", open: "08.00", close: "18.00" },
+  { day: "Sabtu", open: "07.00", close: "18.00" },
   { day: "Minggu", open: "-", close: "-", closed: true },
 ];
 

@@ -1,6 +1,5 @@
-import { LoginForm } from "@/components/auth/LoginForm";
+import { OperationsLoginForm } from "@/components/admin/OperationsLoginForm";
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
-  const { role } = await searchParams;
-  return <LoginForm initialRole={role === "petugas" ? "petugas" : "admin"} />;
+export default function LoginPage() {
+  return <OperationsLoginForm />;
 }

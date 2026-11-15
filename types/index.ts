@@ -1,10 +1,12 @@
 export type OrderStatus =
   | "menunggu"
   | "diterima"
+  | "diproses"
   | "dicuci"
   | "disetrika"
   | "siap_diambil"
-  | "selesai";
+  | "selesai"
+  | "dibatalkan";
 
 export type PaymentStatus = "belum_bayar" | "lunas";
 export type PriceQuoteStatus = "menunggu_timbang" | "menunggu_persetujuan" | "disetujui" | "ditolak";
@@ -41,10 +43,10 @@ export interface OrderTracking {
   pickupAddress?: string;
   serviceName: string;
   status: OrderStatus;
+  customerMessage?: string | null;
   paymentStatus?: PaymentStatus;
   weightKg?: number | null;
   total?: number | null;
   estimatedDone: string;
-  priceQuoteStatus?: PriceQuoteStatus;
-  processingMethod?: string | null;
+  capacityApprovalStatus?: "not_required" | "pending";
 }

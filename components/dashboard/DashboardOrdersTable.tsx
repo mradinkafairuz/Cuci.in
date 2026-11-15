@@ -7,7 +7,7 @@ import { formatRupiah } from "@/lib/utils/format";
 import { dashboardOrders, statusLabels } from "@/lib/mock-data/dashboard";
 import type { OrderStatus } from "@/types";
 
-const tones: Record<OrderStatus, "info" | "success" | "warning" | "neutral"> = { menunggu: "warning", diterima: "info", dicuci: "info", disetrika: "info", siap_diambil: "success", selesai: "neutral" };
+const tones: Record<OrderStatus, "info" | "success" | "warning" | "neutral"> = { menunggu: "warning", diterima: "info", diproses: "info", dicuci: "info", disetrika: "info", siap_diambil: "success", selesai: "neutral", dibatalkan: "neutral" };
 
 export function DashboardOrdersTable({ customerOnly = false }: { customerOnly?: boolean }) {
   const [query, setQuery] = useState("");

@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { Mail, MapPin, Phone, Shirt } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="bg-brand-700 text-white">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-2 text-lg font-bold">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
@@ -15,6 +16,13 @@ export function Footer() {
             Cucian bersih, wangi, dan tepat waktu. Pesan dan pantau pesanan
             Anda kapan saja.
           </p>
+        </div>
+
+        <div>
+          <h3 className="mb-3 font-semibold">Layanan</h3>
+          <ul className="space-y-2 text-sm text-white/75">
+            <li><Link href="/peminjaman-alat" className="inline-flex min-h-11 items-center hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Peminjaman alat laundry</Link></li>
+          </ul>
         </div>
 
         <div className="md:justify-self-end">

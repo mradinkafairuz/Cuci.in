@@ -18,6 +18,9 @@ export type LiquidNavItem = {
   label: string
   href?: string
   icon?: React.ReactNode
+  "aria-current"?: React.AriaAttributes["aria-current"]
+  "aria-expanded"?: boolean
+  "aria-controls"?: string
   /** the little scene the icon plays when tapped */
   fx?: NimbusFx
 }
@@ -552,7 +555,9 @@ export function LiquidNavbar({
         const props = {
           ref: (el: HTMLElement | null) => { itemRefs.current[i] = el },
           className: "nimbus-item",
-          "aria-current": i === current ? ("page" as const) : undefined,
+          "aria-current": it["aria-current"] ?? (i === current ? ("page" as const) : undefined),
+          "aria-expanded": it["aria-expanded"],
+          "aria-controls": it["aria-controls"],
           onClick: () => select(i),
         }
         const content = (

@@ -1,30 +1,12 @@
-import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getStaffSession } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
+import { generateOrderCode } from "@/lib/utils/generate-order-code";
 import type { OrderTracking } from "@/types";
 import type { Database } from "@/types/database.types";
 
 export const runtime = "nodejs";
-const ORDER_CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-function generateOrderCode(): string {
-  const bytes = randomBytes(5);
-  let buffer = 0;
-  let bits = 0;
-  let code = "";
-  for (const byte of bytes) {
-    buffer = (buffer << 8) | byte;
-    bits += 8;
-    while (bits >= 5) {
-      bits -= 5;
-      code += ORDER_CODE_ALPHABET[(buffer >> bits) & 31];
-      buffer &= (1 << bits) - 1;
-    }
-  }
-  return `LDR-${code.slice(0, 4)}-${code.slice(4)}`;
-}
 
 type ContactDetails = {
   customerName: string;
@@ -177,17 +159,31 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createSupabaseAdminClient();
+    const { data: settings, error: settingsError } = await supabase
+      .from("business_settings")
+      .select("is_accepting_orders")
+      .eq("id", 1)
+      .single();
+    if (settingsError) throw settingsError;
+    if (!settings.is_accepting_orders) {
+      return NextResponse.json(
+        { error: "Penerimaan pesanan sedang dijeda. Silakan hubungi laundry untuk informasi lebih lanjut." },
+        { status: 409 },
+      );
+    }
+
     let serviceId: string | null = null;
     let serviceName = "Cuci Satuan";
     let estimatedDoneAt: string | null = null;
     let totalPrice: number | null = null;
-    let orderItem: { itemId: string; itemName: string; processingMethod: string; unitPrice: number; quantity: number } | null = null;
-    const priceQuoteStatus = input.orderType === "KILOAN" ? "MENUNGGU_TIMBANG" : "MENUNGGU_PERSETUJUAN";
+    let servicePricePerKg: number | null = null;
+    let capacityApprovalStatus: "NOT_REQUIRED" | "PENDING" = "NOT_REQUIRED";
+    let orderItem: { itemId: string; itemName: string; unitPrice: number; quantity: number } | null = null;
 
     if (input.orderType === "KILOAN") {
       const { data: service, error } = await supabase
         .from("services")
-        .select("id, name, estimated_days")
+        .select("id, name, price_per_kg, estimated_days")
         .eq("id", input.serviceId)
         .eq("is_active", true)
         .maybeSingle();
@@ -198,6 +194,9 @@ export async function POST(request: Request) {
 
       serviceId = service.id;
       serviceName = service.name;
+      servicePricePerKg = Number(service.price_per_kg);
+      capacityApprovalStatus = "PENDING";
+
       const estimate = new Date();
       estimate.setDate(estimate.getDate() + service.estimated_days);
       estimatedDoneAt = estimate.toISOString();
@@ -252,8 +251,11 @@ export async function POST(request: Request) {
           contact_phone: input.phone,
           pickup_address: input.pickupAddress,
           service_id: serviceId,
-          process_status: "DITERIMA" as const,
-          payment_status: "UNPAID" as const,
+          order_type: input.orderType,
+          service_price_per_kg: servicePricePerKg,
+          capacity_approval_status: capacityApprovalStatus,
+          process_status: "MENUNGGU",
+          payment_status: "UNPAID",
           weight_kg: null,
           total_price: totalPrice,
           estimated_done_at: estimatedDoneAt,
@@ -306,8 +308,7 @@ export async function POST(request: Request) {
       weightKg: null,
       total: totalPrice,
       estimatedDone: formatEstimatedDone(estimatedDoneAt),
-      priceQuoteStatus: input.orderType === "KILOAN" ? "menunggu_timbang" : "menunggu_persetujuan",
-      processingMethod: orderItem?.processingMethod ?? null,
+      capacityApprovalStatus: capacityApprovalStatus === "PENDING" ? "pending" : "not_required",
     };
 
     return NextResponse.json({ order }, { status: 201, headers: { "Cache-Control": "no-store" } });
