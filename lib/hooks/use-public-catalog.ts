@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { LaundryItem, LaundryService, OperatingHour } from "@/types";
-import { FALLBACK_LAUNDRY_ITEMS, FALLBACK_LAUNDRY_SERVICES, FALLBACK_OPERATING_HOURS } from "@/lib/data/catalog-fallback";
+import { FALLBACK_LAUNDRY_EQUIPMENT, FALLBACK_LAUNDRY_ITEMS, FALLBACK_LAUNDRY_SERVICES, FALLBACK_OPERATING_HOURS } from "@/lib/data/catalog-fallback";
 
 interface PublicCatalog {
   services: LaundryService[];
@@ -23,13 +23,14 @@ export function usePublicCatalog() {
   const [catalog, setCatalog] = useState<PublicCatalog>({
     services: FALLBACK_LAUNDRY_SERVICES,
     items: FALLBACK_LAUNDRY_ITEMS,
-    equipment: [],
+    equipment: FALLBACK_LAUNDRY_EQUIPMENT,
     businessHours: FALLBACK_OPERATING_HOURS,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [usingLocalServices, setUsingLocalServices] = useState(true);
   const [usingLocalItems, setUsingLocalItems] = useState(true);
+  const [usingLocalEquipment, setUsingLocalEquipment] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -51,11 +52,12 @@ export function usePublicCatalog() {
           setCatalog({
             services,
             items,
-            equipment: result.equipment ?? [],
+            equipment: result.equipment?.length ? result.equipment : FALLBACK_LAUNDRY_EQUIPMENT,
             businessHours: hasConfiguredHours ? remoteHours : FALLBACK_OPERATING_HOURS,
           });
           setUsingLocalServices(result.services.length === 0);
           setUsingLocalItems(result.items.length === 0);
+          setUsingLocalEquipment(!result.equipment?.length);
           setError("");
         }
       } catch {
@@ -63,11 +65,12 @@ export function usePublicCatalog() {
           setCatalog({
             services: FALLBACK_LAUNDRY_SERVICES,
             items: FALLBACK_LAUNDRY_ITEMS,
-            equipment: [],
+            equipment: FALLBACK_LAUNDRY_EQUIPMENT,
             businessHours: FALLBACK_OPERATING_HOURS,
           });
           setUsingLocalServices(true);
           setUsingLocalItems(true);
+          setUsingLocalEquipment(true);
           setError("");
         }
       } finally {
@@ -91,5 +94,5 @@ export function usePublicCatalog() {
     };
   }, []);
 
-  return { catalog, isLoading, error, usingLocalServices, usingLocalItems };
+  return { catalog, isLoading, error, usingLocalServices, usingLocalItems, usingLocalEquipment };
 }

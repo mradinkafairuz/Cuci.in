@@ -17,7 +17,7 @@ function getJakartaDate() {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
-export function EquipmentLoanForm({ equipment }: { equipment: EquipmentOption[] }) {
+export function EquipmentLoanForm({ equipment, usingLocalCatalog = false }: { equipment: EquipmentOption[]; usingLocalCatalog?: boolean }) {
   const [today, setToday] = useState("");
   const [startDate, setStartDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
@@ -47,6 +47,23 @@ export function EquipmentLoanForm({ equipment }: { equipment: EquipmentOption[] 
     }
 
     try {
+      if (usingLocalCatalog) {
+        const selected = equipment.find((item) => item.id === String(form.get("equipmentId") ?? ""));
+        if (!selected) throw new Error("Pilih alat yang ingin dipinjam.");
+        const message = [
+          "Halo Cuci.in, saya ingin mengajukan sewa alat laundry.",
+          `Nama: ${String(form.get("borrowerName") ?? "").trim()}`,
+          `WhatsApp: ${phone}`,
+          `Alat: ${selected.name}`,
+          `Jumlah: ${String(form.get("quantity") ?? "1")}`,
+          `Tanggal mulai: ${String(form.get("startDate") ?? "")}`,
+          `Rencana pengembalian: ${String(form.get("returnDate") ?? "")}`,
+          `Catatan: ${String(form.get("notes") ?? "").trim() || "-"}`,
+          "Mohon konfirmasi ketersediaan, biaya, dan pilihan pengantaran atau pengambilan alat.",
+        ].join("\n");
+        window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
+        return;
+      }
       const response = await fetch("/api/equipment-loans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,7 +79,7 @@ export function EquipmentLoanForm({ equipment }: { equipment: EquipmentOption[] 
       });
       const result = await response.json() as { error?: string; message?: string };
       if (!response.ok) throw new Error(result.error ?? "Permintaan gagal dikirim.");
-      setMessage(result.message ?? "Permintaan peminjaman berhasil dikirim.");
+      setMessage(result.message ?? "Permintaan sewa alat berhasil dikirim.");
       formElement.reset();
       setStartDate(today);
       setReturnDate(today);
@@ -75,9 +92,9 @@ export function EquipmentLoanForm({ equipment }: { equipment: EquipmentOption[] 
 
   return <form onSubmit={submit} className="rounded-3xl border border-soft bg-white p-5 shadow-sm sm:p-8">
     <div className="mb-6">
-      <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-3 py-1.5 text-xs font-bold text-brand-700"><Wrench size={14} /> Form peminjaman</span>
-      <h2 className="mt-3 text-2xl font-extrabold text-ink">Ajukan peminjaman</h2>
-      <p className="mt-1 text-sm text-muted">Tim kami akan mengonfirmasi ketersediaan alat.</p>
+      <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-3 py-1.5 text-xs font-bold text-brand-700"><Wrench size={14} /> Form sewa alat</span>
+      <h2 className="mt-3 text-2xl font-extrabold text-ink">Ajukan sewa alat</h2>
+      <p className="mt-1 text-sm text-muted">Petugas akan mengonfirmasi ketersediaan, biaya, dan pengantaran atau pengambilan.</p>
     </div>
     <div className="grid gap-4 sm:grid-cols-2">
       <label className="text-sm font-semibold text-ink">Nama peminjam
@@ -118,8 +135,8 @@ export function EquipmentLoanForm({ equipment }: { equipment: EquipmentOption[] 
     {message && <p role="status" className="mt-4 flex items-start gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={18} className="shrink-0" />{message}</p>}
     <button disabled={loading || equipment.length === 0 || !today} className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3.5 font-bold text-white hover:bg-brand-600 disabled:opacity-60">
       {loading ? <Clock3 size={17} className="animate-pulse" /> : <Wrench size={17} />}
-      {loading ? "Mengirim permintaan..." : "Kirim permintaan"}
+      {loading ? (usingLocalCatalog ? "Membuka WhatsApp..." : "Mengirim permintaan...") : usingLocalCatalog ? "Ajukan via WhatsApp" : "Kirim permintaan"}
     </button>
-    <p className="mt-3 text-center text-xs text-muted">Pelanggan tidak perlu membuat akun untuk meminjam alat.</p>
+    <p className="mt-3 text-center text-xs text-muted">Atur pengantaran atau pengambilan setelah petugas mengonfirmasi permintaan.</p>
   </form>;
 }

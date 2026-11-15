@@ -48,7 +48,7 @@ export function EquipmentLoanRequestsPanel({ token }: { token: string }) {
       setRequests(result.requests);
       setHasMore(result.hasMore);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Permintaan peminjaman belum dapat dimuat.");
+      setError(failure instanceof Error ? failure.message : "Permintaan sewa alat belum dapat dimuat.");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ export function EquipmentLoanRequestsPanel({ token }: { token: string }) {
       await adminRequest(token, "/api/admin/equipment-loans", "PATCH", { id, status });
       await refresh();
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Status peminjaman belum dapat diperbarui.");
+      setError(failure instanceof Error ? failure.message : "Status sewa alat belum dapat diperbarui.");
     } finally {
       setBusyId("");
     }
@@ -73,7 +73,7 @@ export function EquipmentLoanRequestsPanel({ token }: { token: string }) {
 
   if (loading) return <p role="status" className="flex items-center gap-2 py-5 text-sm text-muted"><LoaderCircle size={16} className="animate-spin" />Memuat permintaan...</p>;
   if (error && requests.length === 0) return <div><p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p><button onClick={() => void refresh()} className="mt-3 min-h-11 rounded-lg border border-soft px-4 text-sm font-bold">Coba lagi</button></div>;
-  if (requests.length === 0) return <Card className="py-8 text-center"><PackageOpen size={27} className="mx-auto text-brand-300" /><p className="mt-2 font-semibold text-ink">Belum ada permintaan peminjaman</p></Card>;
+  if (requests.length === 0) return <Card className="py-8 text-center"><PackageOpen size={27} className="mx-auto text-brand-300" /><p className="mt-2 font-semibold text-ink">Belum ada pengajuan sewa alat</p></Card>;
 
   return <div>
     {error && <p role="alert" className="mb-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
@@ -86,7 +86,7 @@ export function EquipmentLoanRequestsPanel({ token }: { token: string }) {
               <p className="font-bold text-ink">{request.equipment_name} <span className="text-muted">× {request.quantity}</span></p>
               <p className="mt-1 text-sm text-muted">{request.borrower_name} · {request.phone}</p>
             </div>
-            <select aria-label={`Status peminjaman ${request.equipment_name}`} value={request.status} disabled={busyId === request.id} onChange={(event) => void changeStatus(request.id, event.target.value as LoanStatus)} className="min-h-11 rounded-lg border border-soft bg-white px-3 text-xs font-bold disabled:opacity-50">
+            <select aria-label={`Status sewa ${request.equipment_name}`} value={request.status} disabled={busyId === request.id} onChange={(event) => void changeStatus(request.id, event.target.value as LoanStatus)} className="min-h-11 rounded-lg border border-soft bg-white px-3 text-xs font-bold disabled:opacity-50">
               {statuses.map((status) => <option key={status} value={status}>{statusNames[status]}</option>)}
             </select>
           </div>

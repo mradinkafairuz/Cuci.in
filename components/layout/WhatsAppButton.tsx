@@ -30,7 +30,7 @@ function createMessage(pathname: string) {
       ? `Halo Cuci.in, saya ingin menanyakan status pesanan dengan kode ${code}.`
       : "Halo Cuci.in, saya ingin menanyakan status pesanan saya. Mohon bantuannya.";
   }
-  if (pathname === "/peminjaman-alat") return "Halo Cuci.in, saya ingin bertanya tentang peminjaman alat. Mohon informasinya.";
+  if (pathname === "/peminjaman-alat") return "Halo Cuci.in, saya ingin bertanya tentang sewa alat laundry. Mohon informasinya.";
   return "Halo Cuci.in, saya ingin bertanya tentang layanan laundry. Mohon informasinya.";
 }
 
