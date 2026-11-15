@@ -21,6 +21,15 @@ export const FALLBACK_LAUNDRY_ITEMS: LaundryItem[] = [
   { id: "gordyn-vitrase", slug: "gordyn-vitrase", name: "Gordyn / Vitrase / Curtain", processingMethod: "Cuci lembut dan setrika uap", price: 18000 },
 ];
 
+export const FALLBACK_LAUNDRY_EQUIPMENT = [
+  { id: "mesin-cuci", name: "Mesin cuci rumahan", description: "Untuk mencuci pakaian sehari-hari di rumah.", price: null, priceUnit: null, quantityAvailable: 1 },
+  { id: "setrika-uap", name: "Setrika uap", description: "Untuk merapikan pakaian dengan praktis di rumah.", price: null, priceUnit: null, quantityAvailable: 1 },
+  { id: "mesin-pengering", name: "Mesin pengering pakaian", description: "Membantu pakaian lebih cepat kering saat cuaca kurang mendukung.", price: null, priceUnit: null, quantityAvailable: 1 },
+  { id: "steamer-pakaian", name: "Steamer pakaian", description: "Perapian uap praktis untuk pakaian sehari-hari.", price: null, priceUnit: null, quantityAvailable: 1 },
+  { id: "rak-jemuran-lipat", name: "Rak jemuran lipat", description: "Rak jemur ringkas untuk pakaian di rumah.", price: null, priceUnit: null, quantityAvailable: 1 },
+  { id: "keranjang-laundry", name: "Keranjang laundry", description: "Untuk membawa dan memisahkan cucian di rumah.", price: null, priceUnit: null, quantityAvailable: 1 },
+];
+
 export const FALLBACK_OPERATING_HOURS: OperatingHour[] = [
   { day: "Senin - Jumat", open: "07.00", close: "20.00" },
   { day: "Sabtu", open: "07.00", close: "18.00" },

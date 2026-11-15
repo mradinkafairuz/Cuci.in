@@ -15,11 +15,11 @@ const navItems: LiquidNavItem[] = [
   { label: "Jam Operasional", href: "/#jam-operasional", icon: <Clock3 size={18} strokeWidth={1.8} />, fx: "pop" },
   { label: "Cek Status", href: "/cek-status", icon: <PackageSearch size={18} strokeWidth={1.8} />, fx: "drop" },
   { label: "Pesan", href: "/pesan", icon: <ShoppingBag size={18} strokeWidth={1.8} />, fx: "pop" },
-  { label: "Pinjam Alat", href: "/peminjaman-alat", icon: <Wrench size={18} strokeWidth={1.8} />, fx: "pop" },
+  { label: "Sewa Alat", href: "/peminjaman-alat", icon: <Wrench size={18} strokeWidth={1.8} />, fx: "pop" },
 ];
 
 const primaryNavItems = [navItems[0], navItems[1], navItems[2], navItems[7]];
-const moreNavItems = [navItems[3], navItems[4], navItems[5], navItems[6]];
+const moreNavItems = [navItems[3], navItems[4], navItems[5], navItems[6], navItems[8]];
 
 function MoreMenu({ id, active, onSelect, className }: {
   id: string;
@@ -50,7 +50,7 @@ function MoreMenu({ id, active, onSelect, className }: {
 
 export function Navbar() {
   const pathname = usePathname();
-  const routeActive = pathname === "/sewa-alat" ? -1 : pathname === "/pesan-satuan" ? 3 : pathname === "/pesan" ? 7 : pathname === "/cek-status" ? 6 : 0;
+  const routeActive = pathname === "/peminjaman-alat" || pathname === "/sewa-alat" ? 8 : pathname === "/pesan-satuan" ? 3 : pathname === "/pesan" ? 7 : pathname === "/cek-status" ? 6 : 0;
   const headerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(routeActive);
   const [isPastHeader, setIsPastHeader] = useState(pathname !== "/");

@@ -6,8 +6,8 @@ export type DashboardRole = "pelanggan" | "petugas" | "admin";
 
 const roleInfo = {
   pelanggan: { title: "Dashboard Pelanggan", home: "/dashboard", icon: LayoutDashboard, links: [{ href: "/dashboard", label: "Ringkasan" }, { href: "/pesan", label: "Buat pesanan" }, { href: "/cek-status", label: "Lacak pesanan" }] },
-  petugas: { title: "Dashboard Petugas", home: "/petugas", icon: WashingMachine, links: [{ href: "/petugas", label: "Antrean pesanan" }, { href: "/peminjaman-alat", label: "Peminjaman alat" }] },
-  admin: { title: "Dashboard Admin", home: "/admin", icon: Users, links: [{ href: "/admin", label: "Ringkasan" }, { href: "/peminjaman-alat", label: "Peminjaman alat" }] },
+  petugas: { title: "Dashboard Petugas", home: "/petugas", icon: WashingMachine, links: [{ href: "/petugas", label: "Antrean pesanan" }, { href: "/peminjaman-alat", label: "Sewa alat" }] },
+  admin: { title: "Dashboard Admin", home: "/admin", icon: Users, links: [{ href: "/admin", label: "Ringkasan" }, { href: "/peminjaman-alat", label: "Sewa alat" }] },
 } satisfies Record<DashboardRole, { title: string; home: string; icon: typeof LayoutDashboard; links: { href: string; label: string }[] }>;
 
 export function DashboardShell({ role, children }: { role: DashboardRole; children: React.ReactNode }) {

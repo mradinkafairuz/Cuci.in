@@ -395,7 +395,7 @@ export function OrdersPanel({ token, services = [], canManageAll, refreshKey = 0
     </div>
     {canManageAll && <details className="mt-8 rounded-2xl border border-soft bg-white p-4" onToggle={(event) => setLoanRequestsOpen(event.currentTarget.open)}>
       <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 font-bold text-ink">
-        <span>Permintaan peminjaman alat</span>
+        <span>Permintaan sewa alat</span>
         <span className="text-sm font-medium text-muted">Hanya admin</span>
       </summary>
       {loanRequestsOpen && <div className="mt-4 border-t border-soft pt-4"><EquipmentLoanRequestsPanel token={token} /></div>}
@@ -505,10 +505,10 @@ function EquipmentForm({ entry, onSave }: {
   const form = <form onSubmit={submit} className="grid gap-3 rounded-2xl border border-soft bg-white p-4 sm:grid-cols-2">
     <input required minLength={2} maxLength={120} name="name" aria-label="Nama alat" defaultValue={entry?.name} placeholder="Nama alat" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
     <input name="description" aria-label="Deskripsi atau spesifikasi alat" defaultValue={entry?.description ?? ""} placeholder="Deskripsi/spesifikasi" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
-    <input type="number" min="0" step="1000" name="price" aria-label="Harga sewa alat" defaultValue={entry?.price ?? ""} placeholder="Harga sewa (kosong = Tanya ke admin)" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
+    <input type="number" min="0" step="1000" name="price" aria-label="Harga sewa alat" defaultValue={entry?.price ?? ""} placeholder="Harga sewa (opsional)" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
     <select name="priceUnit" aria-label="Satuan harga sewa" defaultValue={entry?.price_unit ?? ""} className="min-h-11 rounded-lg border border-soft bg-white px-3 text-sm"><option value="">Pilih satuan harga</option><option value="hari">Per hari</option><option value="minggu">Per minggu</option><option value="bulan">Per bulan</option></select>
     <input required type="number" min="0" max="100000" name="quantity" aria-label="Jumlah stok alat tersedia" defaultValue={entry?.quantity_available ?? 0} placeholder="Stok tersedia" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
-    <label className="flex min-h-11 items-center gap-2 text-sm text-muted"><input type="checkbox" name="isActive" defaultChecked={entry?.is_active ?? true} /> Tampilkan di peminjaman alat</label>
+    <label className="flex min-h-11 items-center gap-2 text-sm text-muted"><input type="checkbox" name="isActive" defaultChecked={entry?.is_active ?? true} /> Tampilkan di daftar sewa alat</label>
     <button disabled={busy} className="min-h-11 rounded-lg border border-brand-500 px-4 text-sm font-bold text-brand-700 disabled:opacity-50">{busy ? "Memproses..." : entry ? "Simpan perubahan" : "Tambahkan"}</button>
     {error && <p role="alert" className="text-sm text-red-700 sm:col-span-2">{error}</p>}
   </form>;
@@ -538,8 +538,8 @@ function ServicesPanel({ draft, onSave }: {
       <div className="space-y-2">{draft.items.map((item) => <ServiceForm key={`${item.id}-${item.name}-${item.price}-${item.is_active}`} kind="item" entry={item} onSave={onSave} />)}<ServiceForm kind="item" onSave={onSave} /></div>
     </section>
     <section>
-      <h2 className="mb-2 text-lg font-bold text-ink">Peminjaman alat</h2>
-      <p className="mb-3 text-sm text-muted">Atur jenis alat, harga, jumlah, dan ketersediaan. Harga kosong ditampilkan sebagai “Tanya ke admin”.</p>
+      <h2 className="mb-2 text-lg font-bold text-ink">Sewa alat</h2>
+      <p className="mb-3 text-sm text-muted">Atur jenis alat, harga, jumlah, dan ketersediaan. Jika harga belum ditetapkan, petugas akan mengonfirmasikannya saat ada pengajuan.</p>
       <div className="space-y-2">{draft.equipment.map((entry) => <EquipmentForm key={`${entry.id}-${entry.name}-${entry.price}-${entry.price_unit}-${entry.quantity_available}-${entry.is_active}`} entry={entry} onSave={onSave} />)}<EquipmentForm onSave={onSave} /></div>
       {draft.equipment.length === 0 && <Card className="py-8 text-center text-sm text-muted">Belum ada alat di katalog.</Card>}
     </section>
