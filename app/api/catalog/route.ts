@@ -14,12 +14,12 @@ const dayLabels = [
 
 function readHour(value: unknown) {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return { open: "07:00", close: "20:00", closed: true };
+    return { open: "", close: "", closed: true };
   }
   const record = value as Record<string, unknown>;
   return {
-    open: typeof record.open === "string" ? record.open : "07:00",
-    close: typeof record.close === "string" ? record.close : "20:00",
+    open: typeof record.open === "string" ? record.open : "",
+    close: typeof record.close === "string" ? record.close : "",
     closed: typeof record.closed === "boolean" ? record.closed : true,
   };
 }
@@ -29,6 +29,15 @@ function readHourForDay(value: unknown, key: string) {
     return readHour(null);
   }
   return readHour((value as Record<string, unknown>)[key]);
+}
+
+function hasConfiguredBusinessHours(value: unknown) {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const hours = value as Record<string, unknown>;
+  return dayLabels.some(([key]) => {
+    const hour = hours[key];
+    return typeof hour === "object" && hour !== null && !Array.isArray(hour);
+  });
 }
 
 function getServiceIcon(name: string): "wash" | "iron" | "full" | "express" {
@@ -100,6 +109,7 @@ export async function GET() {
           day,
           ...readHourForDay(settingsResult.data.business_hours, key),
         })),
+        businessHoursConfigured: hasConfiguredBusinessHours(settingsResult.data.business_hours),
       },
       { headers: { "Cache-Control": "no-store" } },
     );

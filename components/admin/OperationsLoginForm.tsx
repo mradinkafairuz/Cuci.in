@@ -83,13 +83,13 @@ export function OperationsLoginForm() {
   return (
     <main className="grid min-h-screen place-items-center bg-soft/50 px-4 py-10">
       <section className="w-full max-w-md rounded-3xl border border-white bg-white p-6 shadow-xl shadow-brand-900/5 sm:p-8">
-        <div className="flex items-center gap-3">
-          <span className="grid size-12 place-items-center rounded-2xl bg-brand-500 text-white">
-            <Shirt size={24} aria-hidden="true" />
+        <div className="flex items-center gap-2.5">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-700/20 ring-2 ring-brand-500/10">
+            <Shirt size={21} strokeWidth={2.1} aria-hidden="true" />
           </span>
           <div>
-            <p className="text-sm font-bold text-brand-700">Cuci.in</p>
-            <p className="text-xs text-muted">Area operasional</p>
+            <p className="text-lg font-extrabold leading-none tracking-tight text-brand-700 sm:text-xl">Cuci.in</p>
+            <p className="mt-1 text-xs text-muted">Area operasional</p>
           </div>
         </div>
 

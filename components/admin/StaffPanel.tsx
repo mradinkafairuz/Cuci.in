@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, RefreshCw } from "lucide-react";
+import { LogOut, RefreshCw, Shirt } from "lucide-react";
 import { OrdersPanel } from "@/components/admin/AdminPanel";
 import { getOperationalRole } from "@/lib/admin/role";
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
@@ -87,9 +87,20 @@ export function StaffPanel() {
   </main>;
 
   return <main className="min-h-screen bg-page">
-    <header className="border-b border-soft bg-white">
+    <header className="border-b border-brand-100 bg-gradient-to-r from-white via-white to-brand-50/70">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <div><p className="text-sm font-bold text-brand-700">Cuci.in · Panel petugas</p><p className="text-xs text-muted">{email}</p></div>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-700/20 ring-4 ring-brand-500/10">
+            <Shirt size={22} strokeWidth={2.1} aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-lg font-extrabold leading-none tracking-tight text-brand-700 sm:text-xl">Cuci.in</p>
+              <span className="rounded-full border border-brand-200 bg-white/80 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-brand-700">Petugas</span>
+            </div>
+            <p className="mt-1 max-w-[48vw] truncate text-xs text-muted sm:max-w-none">{email}</p>
+          </div>
+        </div>
         <button onClick={() => void logout()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-soft px-3 text-sm font-semibold text-ink"><LogOut size={15} /> Keluar</button>
       </div>
     </header>

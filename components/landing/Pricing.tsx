@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { CUCI_SATUAN_ITEMS, ProductRailGallery, type RailGarment } from "@/components/ui/product-rail-gallery";
 import { usePublicCatalog } from "@/lib/hooks/use-public-catalog";
 import { formatRupiah } from "@/lib/utils/format";
 
@@ -14,18 +13,6 @@ export function Pricing() {
   const { catalog, isLoading, error } = usePublicCatalog();
   const services = catalog?.services ?? [];
   const items = catalog?.items ?? [];
-  const galleryItems: RailGarment[] = items.map((item) => {
-    const artwork = CUCI_SATUAN_ITEMS.find((preset) => preset.id === item.slug);
-    return {
-      ...artwork,
-      id: item.id,
-      name: item.name,
-      kind: artwork?.kind ?? "tee",
-      tag: formatRupiah(item.price),
-      details: [...(artwork?.details ?? []), `Harga ${formatRupiah(item.price)} per item`],
-    };
-  });
-
   return (
     <section id="tarif" className="scroll-mt-20 bg-soft/50 py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -66,7 +53,10 @@ export function Pricing() {
             title="Harga layanan cuci satuan"
             subtitle="Berikut harga untuk setiap item yang ingin dicuci."
           />
-          <ProductRailGallery items={galleryItems.length ? galleryItems : CUCI_SATUAN_ITEMS} />
+          {isLoading && <p role="status" className="text-sm text-muted">Memuat daftar cuci satuan...</p>}
+          {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+          {!isLoading && !error && items.length === 0 && <p className="rounded-2xl border border-soft bg-white p-6 text-sm text-muted">Belum ada jenis cucian aktif.</p>}
+          {items.length > 0 && <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{items.map((item) => <Card key={item.id}><h3 className="font-semibold text-ink">{item.name}</h3><p className="mt-3 text-2xl font-bold text-brand-600">{formatRupiah(item.price)}<span className="text-sm font-medium text-muted"> /item</span></p><Link href={`/pesan-satuan?item=${encodeURIComponent(item.slug || item.id)}`} className="mt-5 inline-flex w-full items-center justify-center rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50">Pesan item</Link></Card>)}</div>}
         </div>
       </div>
     </section>

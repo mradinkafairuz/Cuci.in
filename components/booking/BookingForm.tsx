@@ -51,25 +51,24 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
       return;
     }
 
-    if (usingLocalServices) {
-      const message = [
-        "Halo Cuci.in, saya ingin memesan layanan kiloan.",
-        `Layanan: ${selected.name}`,
-        `Tarif: ${formatRupiah(selected.pricePerKg)} per kg`,
-        `Estimasi: ${selected.estimateDays} hari`,
-        `Nama: ${customerName}`,
-        `Nomor WhatsApp: ${phone}`,
-        `Alamat penjemputan: ${pickupAddress}`,
-        "Mohon konfirmasi ketersediaan layanan, berat cucian, dan total harga. Terima kasih.",
-      ].join("\n");
-      window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
-      return;
-    }
-
     submitting.current = true;
     setIsSubmitting(true);
     setSubmitError("");
     try {
+      if (usingLocalServices) {
+        const message = [
+          "Halo Cuci.in, saya ingin mengajukan pesanan laundry.",
+          `Nama: ${customerName}`,
+          `WhatsApp: ${phone}`,
+          `Alamat penjemputan: ${pickupAddress}`,
+          `Layanan: ${selected.name}`,
+          `Tarif acuan: ${formatRupiah(selected.pricePerKg)}/kg`,
+          `Estimasi: ${selected.estimateDays} hari`,
+          "Mohon konfirmasi ketersediaan layanan dan total setelah penimbangan.",
+        ].join("\n");
+        window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
+        return;
+      }
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,7 +152,7 @@ export function BookingForm({ initialServiceId }: { initialServiceId?: string })
           {selected && <Badge><Clock size={12} className="mr-1" /> Estimasi {selected.estimateDays} hari</Badge>}
         </div>
         <button type="submit" disabled={isSubmitting || catalogLoading || !selected} className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-wait disabled:opacity-60">
-          <PackageCheck size={18} /> {isSubmitting ? "Menyimpan..." : usingLocalServices ? "Pesan via WhatsApp" : "Buat pesanan"}
+          <PackageCheck size={18} /> {isSubmitting ? (usingLocalServices ? "Membuka WhatsApp..." : "Menyimpan...") : usingLocalServices ? "Pesan via WhatsApp" : "Buat pesanan"}
         </button>
       </Card>
       {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{submitError}</p>}

@@ -1,5 +1,11 @@
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { orderSteps } from "@/lib/mock-data/landing";
+
+const orderSteps = [
+  { title: "Pilih layanan", desc: "Tentukan jenis perawatan yang Anda butuhkan." },
+  { title: "Atur penjemputan", desc: "Masukkan alamat dan kontak yang bisa dihubungi." },
+  { title: "Pantau Status", desc: "Lihat progres cucian dari dashboard." },
+  { title: "Bayar & Ambil", desc: "Lunasi tagihan, lalu ambil cucian Anda." },
+];
 
 export function HowItWorks() {
   return (
