@@ -8,6 +8,7 @@ import type { Database } from "@/types/database.types";
 export const dynamic = "force-dynamic";
 
 const publicStatus: Record<Database["public"]["Enums"]["process_status"], OrderStatus> = {
+  MENUNGGU: "menunggu",
   DITERIMA: "diterima",
   DIPROSES: "diproses",
   DICUCI: "dicuci",
@@ -16,13 +17,6 @@ const publicStatus: Record<Database["public"]["Enums"]["process_status"], OrderS
   SELESAI: "selesai",
   DIBATALKAN: "dibatalkan",
 };
-
-const publicQuoteStatus = {
-  MENUNGGU_TIMBANG: "menunggu_timbang",
-  MENUNGGU_PERSETUJUAN: "menunggu_persetujuan",
-  DISETUJUI: "disetujui",
-  DITOLAK: "ditolak",
-} as const;
 
 function formatEstimatedDone(date: string | null): string {
   return date
@@ -72,7 +66,16 @@ export async function GET(request: Request) {
         .maybeSingle();
       if (legacyError) throw legacyError;
       row = legacyRow
-        ? { ...legacyRow, order_type: "KILOAN" as const, price_quote_status: "DISETUJUI" as const }
+        ? {
+            id: legacyRow.id,
+            order_code: legacyRow.order_code,
+            process_status: legacyRow.process_status,
+            service_id: legacyRow.service_id,
+            estimated_done_at: legacyRow.estimated_done_at,
+            order_type: "KILOAN",
+            customer_message: null,
+            services: null,
+          }
         : null;
     } else if (error) {
       throw error;
@@ -105,6 +108,7 @@ export async function GET(request: Request) {
       status: publicStatus[row.process_status],
       estimatedDone: formatEstimatedDone(row.estimated_done_at),
       customerMessage: row.customer_message,
+      processingMethod,
     };
     return NextResponse.json({ order }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {

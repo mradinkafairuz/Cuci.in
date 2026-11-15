@@ -178,7 +178,9 @@ export async function POST(request: Request) {
     let totalPrice: number | null = null;
     let servicePricePerKg: number | null = null;
     let capacityApprovalStatus: "NOT_REQUIRED" | "PENDING" = "NOT_REQUIRED";
-    let orderItem: { itemId: string; itemName: string; unitPrice: number; quantity: number } | null = null;
+    const priceQuoteStatus: NonNullable<Database["public"]["Tables"]["orders"]["Insert"]["price_quote_status"]> =
+      input.orderType === "KILOAN" ? "MENUNGGU_TIMBANG" : "MENUNGGU_PERSETUJUAN";
+    let orderItem: { itemId: string; itemName: string; processingMethod: string; unitPrice: number; quantity: number } | null = null;
 
     if (input.orderType === "KILOAN") {
       const { data: service, error } = await supabase
@@ -244,7 +246,7 @@ export async function POST(request: Request) {
         .single();
 
       if (result.error && isMissingPriceQuoteSchema(result.error)) {
-        const legacyValues = {
+        const legacyValues: Database["public"]["Tables"]["orders"]["Insert"] = {
           order_code: orderCode,
           customer_id: null,
           customer_name: input.customerName,
