@@ -7,14 +7,12 @@ import { Card } from "@/components/ui/Card";
 import { usePublicCatalog } from "@/lib/hooks/use-public-catalog";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 import { formatRupiah } from "@/lib/utils/format";
-import { LOCAL_LAUNDRY_ITEMS } from "@/lib/data/laundry-items";
 import type { OrderTracking } from "@/types";
 
 export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string }) {
   const { catalog, isLoading: catalogLoading, error: catalogError, usingLocalItems } = usePublicCatalog();
-  const items = catalog?.items.length ? catalog.items : LOCAL_LAUNDRY_ITEMS;
-  const usingLocalCatalog = usingLocalItems || !catalog?.items.length;
-  const [itemId, setItemId] = useState(() => LOCAL_LAUNDRY_ITEMS.find((item) => item.slug === initialItemId || item.id === initialItemId)?.id ?? LOCAL_LAUNDRY_ITEMS[0]?.id ?? "");
+  const items = catalog?.items ?? [];
+  const [itemId, setItemId] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [createdOrder, setCreatedOrder] = useState<OrderTracking | null>(null);
   const [submitError, setSubmitError] = useState("");
@@ -44,26 +42,25 @@ export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string 
     if (!isValidIndonesianPhone(phone)) { setSubmitError("Masukkan nomor WhatsApp yang valid."); return; }
     if (pickupAddress.length < 8) { setSubmitError("Alamat penjemputan perlu mencantumkan detail yang cukup."); return; }
 
-    if (usingLocalCatalog) {
-      const message = [
-        "Halo Cuci.in, saya ingin memesan cuci satuan.",
-        `Pakaian: ${selected.name}`,
-        `Jumlah: ${quantity} item`,
-        `Metode perawatan: ${selected.processingMethod}`,
-        `Perkiraan harga: ${formatRupiah(total)}`,
-        `Nama: ${customerName}`,
-        `Nomor WhatsApp: ${phone}`,
-        `Alamat penjemputan: ${pickupAddress}`,
-        "Mohon konfirmasi harga dan jadwal penjemputan. Terima kasih.",
-      ].join("\n");
-      window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
-      return;
-    }
-
     submitting.current = true;
     setIsSubmitting(true);
     setSubmitError("");
     try {
+      if (usingLocalItems) {
+        const message = [
+          "Halo Cuci.in, saya ingin mengajukan pesanan cuci satuan.",
+          `Nama: ${customerName}`,
+          `WhatsApp: ${phone}`,
+          `Alamat penjemputan: ${pickupAddress}`,
+          `Item: ${selected.name}`,
+          `Metode pengerjaan: ${selected.processingMethod}`,
+          `Jumlah: ${quantity}`,
+          `Perkiraan harga: ${formatRupiah(total)}`,
+          "Mohon konfirmasi ketersediaan dan harga sebelum pengerjaan.",
+        ].join("\n");
+        window.location.href = `https://wa.me/6285211981471?text=${encodeURIComponent(message)}`;
+        return;
+      }
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,6 +106,7 @@ export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string 
           <h2 className="text-xl font-bold text-ink">1. Pilih jenis pakaian</h2>
           <p className="mt-1 text-sm text-muted">Harga dihitung per item dan langsung terlihat di ringkasan pesanan.</p>
           {catalogLoading && <p role="status" className="mt-4 text-sm text-muted">Menyiapkan daftar cucian...</p>}
+          {catalogError && <p role="alert" className="mt-4 text-sm text-red-600">{catalogError}</p>}
           {!catalogLoading && !catalogError && items.length === 0 && <p className="mt-4 text-sm text-muted">Belum ada jenis cucian aktif. Silakan hubungi pengelola laundry.</p>}
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {items.map((item) => (
@@ -146,8 +144,7 @@ export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string 
             <div className="flex justify-between gap-3 text-muted"><span>Jumlah</span><span>{quantity} item</span></div>
             <div className="flex justify-between gap-3 border-t border-soft pt-3 text-base font-extrabold text-ink"><span>Total</span><span className="text-brand-700">{formatRupiah(total)}</span></div>
           </div>
-          <button type="submit" disabled={isSubmitting || !selected} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-wait disabled:opacity-60"><PackageCheck size={18} /> {usingLocalCatalog ? "Pesan via WhatsApp" : isSubmitting ? "Menyimpan..." : "Buat pesanan satuan"}</button>
-          {usingLocalCatalog && <p className="mt-3 text-xs leading-relaxed text-muted">Pilihan dan detail pesanan akan disiapkan di pesan WhatsApp.</p>}
+          <button type="submit" disabled={isSubmitting || catalogLoading || !selected} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-wait disabled:opacity-60"><PackageCheck size={18} /> {isSubmitting ? (usingLocalItems ? "Membuka WhatsApp..." : "Menyimpan...") : usingLocalItems ? "Pesan via WhatsApp" : "Buat pesanan satuan"}</button>
         </Card>
       </aside>
       {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 lg:col-span-2">{submitError}</p>}

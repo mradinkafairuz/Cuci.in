@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { LaundryItem, LaundryService, OperatingHour } from "@/types";
-import { LOCAL_LAUNDRY_ITEMS } from "@/lib/data/laundry-items";
-import { LOCAL_LAUNDRY_SERVICES } from "@/lib/data/laundry-services";
-import { operatingHours } from "@/lib/mock-data/landing";
+import { FALLBACK_LAUNDRY_ITEMS, FALLBACK_LAUNDRY_SERVICES, FALLBACK_OPERATING_HOURS } from "@/lib/data/catalog-fallback";
 
 interface PublicCatalog {
   services: LaundryService[];
@@ -18,50 +16,79 @@ interface PublicCatalog {
     quantityAvailable: number;
   }[];
   businessHours: OperatingHour[];
+  businessHoursConfigured?: boolean;
 }
 
 export function usePublicCatalog() {
-  const [catalog, setCatalog] = useState<PublicCatalog | null>(null);
+  const [catalog, setCatalog] = useState<PublicCatalog>({
+    services: FALLBACK_LAUNDRY_SERVICES,
+    items: FALLBACK_LAUNDRY_ITEMS,
+    equipment: [],
+    businessHours: FALLBACK_OPERATING_HOURS,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [usingLocalServices, setUsingLocalServices] = useState(false);
-  const [usingLocalItems, setUsingLocalItems] = useState(false);
+  const [usingLocalServices, setUsingLocalServices] = useState(true);
+  const [usingLocalItems, setUsingLocalItems] = useState(true);
 
   useEffect(() => {
     let active = true;
+    let loading = false;
     async function loadCatalog() {
+      if (loading) return;
+      loading = true;
       try {
         const response = await fetch("/api/catalog", { cache: "no-store" });
         const result: Partial<PublicCatalog> & { error?: string } = await response.json();
-        if (!response.ok || !result.services || !result.items) {
+        if (!response.ok || !Array.isArray(result.services) || !Array.isArray(result.items)) {
           throw new Error(result.error ?? "Katalog tidak dapat dimuat.");
         }
         if (active) {
-          const localServices = result.services.length === 0;
-          const localItems = result.items.length === 0;
+          const services = result.services.length ? result.services : FALLBACK_LAUNDRY_SERVICES;
+          const items = result.items.length ? result.items : FALLBACK_LAUNDRY_ITEMS;
+          const remoteHours = result.businessHours ?? [];
+          const hasConfiguredHours = result.businessHoursConfigured ?? remoteHours.some((hour) => !hour.closed && Boolean(hour.open && hour.close));
           setCatalog({
-            services: localServices ? LOCAL_LAUNDRY_SERVICES : result.services,
-            items: localItems ? LOCAL_LAUNDRY_ITEMS : result.items,
+            services,
+            items,
             equipment: result.equipment ?? [],
-            businessHours: result.businessHours?.length ? result.businessHours : operatingHours,
+            businessHours: hasConfiguredHours ? remoteHours : FALLBACK_OPERATING_HOURS,
           });
-          setUsingLocalServices(localServices);
-          setUsingLocalItems(localItems);
+          setUsingLocalServices(result.services.length === 0);
+          setUsingLocalItems(result.items.length === 0);
+          setError("");
         }
       } catch {
         if (active) {
-          setCatalog({ services: LOCAL_LAUNDRY_SERVICES, items: LOCAL_LAUNDRY_ITEMS, equipment: [], businessHours: operatingHours });
+          setCatalog({
+            services: FALLBACK_LAUNDRY_SERVICES,
+            items: FALLBACK_LAUNDRY_ITEMS,
+            equipment: [],
+            businessHours: FALLBACK_OPERATING_HOURS,
+          });
           setUsingLocalServices(true);
           setUsingLocalItems(true);
           setError("");
         }
       } finally {
         if (active) setIsLoading(false);
+        loading = false;
       }
     }
 
     void loadCatalog();
-    return () => { active = false; };
+    const interval = window.setInterval(() => void loadCatalog(), 30_000);
+    const reloadWhenVisible = () => {
+      if (document.visibilityState === "visible") void loadCatalog();
+    };
+    window.addEventListener("focus", reloadWhenVisible);
+    document.addEventListener("visibilitychange", reloadWhenVisible);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", reloadWhenVisible);
+      document.removeEventListener("visibilitychange", reloadWhenVisible);
+    };
   }, []);
 
   return { catalog, isLoading, error, usingLocalServices, usingLocalItems };

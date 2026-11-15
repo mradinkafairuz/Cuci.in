@@ -353,7 +353,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to save admin configuration:", error);
-    const message = isRecord(error) && error.code === "23505" ? "Nama layanan tersebut sudah digunakan." : "Pengaturan belum dapat disimpan. Draft lokal tetap tersimpan.";
+    const message = isRecord(error) && error.code === "23505" ? "Nama layanan tersebut sudah digunakan." : "Pengaturan belum dapat disimpan.";
     return NextResponse.json({ error: message }, { status: 503 });
   }
 }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Banknote, ClipboardList, LogOut, Plus, RefreshCw, Users, WashingMachine } from "lucide-react";
+import { Banknote, ClipboardList, LogOut, Plus, RefreshCw, Shirt, Users, WashingMachine } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { EquipmentLoanRequestsPanel } from "@/components/admin/EquipmentLoanRequestsPanel";
 import { adminRequest } from "@/lib/admin/request";
@@ -90,7 +90,6 @@ type AdminData = {
 
 type ConfigDraft = Pick<AdminData, "services" | "items" | "equipment" | "settings">;
 
-const draftStorageKey = "cuci.in.admin-config-draft.v1";
 const statusNames: Record<ProcessStatus, string> = {
   MENUNGGU: "Menunggu",
   DITERIMA: "Diterima",
@@ -100,16 +99,6 @@ const statusNames: Record<ProcessStatus, string> = {
   SIAP_DIAMBIL: "Siap diambil",
   SELESAI: "Selesai",
   DIBATALKAN: "Dibatalkan",
-};
-
-const defaultHours: BusinessHours = {
-  monday: { open: "07:00", close: "20:00", closed: false },
-  tuesday: { open: "07:00", close: "20:00", closed: false },
-  wednesday: { open: "07:00", close: "20:00", closed: false },
-  thursday: { open: "07:00", close: "20:00", closed: false },
-  friday: { open: "07:00", close: "20:00", closed: false },
-  saturday: { open: "07:00", close: "18:00", closed: false },
-  sunday: { open: "07:00", close: "18:00", closed: true },
 };
 
 const dayLabels: Record<DayKey, string> = {
@@ -122,10 +111,6 @@ const dayLabels: Record<DayKey, string> = {
   sunday: "Minggu",
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function toConfigDraft(data: AdminData): ConfigDraft {
   return {
     services: data.services.map((service) => ({ ...service })),
@@ -134,24 +119,10 @@ function toConfigDraft(data: AdminData): ConfigDraft {
     settings: {
       ...data.settings,
       business_hours: Object.fromEntries(
-        Object.entries(data.settings.business_hours ?? defaultHours).map(([day, hours]) => [day, { ...hours }]),
+        Object.entries(data.settings.business_hours).map(([day, hours]) => [day, { ...hours }]),
       ) as BusinessHours,
     },
   };
-}
-
-function isConfigDraft(value: unknown): value is ConfigDraft {
-  if (!isRecord(value) || !Array.isArray(value.services) || !Array.isArray(value.items) || !Array.isArray(value.equipment) || !isRecord(value.settings)) return false;
-  const settings = value.settings;
-  const businessHours = settings.business_hours;
-  if (typeof settings.daily_capacity_kg !== "number" || typeof settings.is_accepting_orders !== "boolean" || !isRecord(businessHours)) return false;
-  return Object.keys(defaultHours).every((day) => {
-    const hours = businessHours[day];
-    return isRecord(hours)
-      && typeof hours.open === "string"
-      && typeof hours.close === "string"
-      && typeof hours.closed === "boolean";
-  });
 }
 
 function sameRows(left: Record<string, unknown>, right: Record<string, unknown>, fields: string[]) {
@@ -462,7 +433,7 @@ function ServiceForm({ kind, entry, onSave }: {
       await onSave(payload);
       if (!entry) formElement.reset();
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Data layanan tidak dapat disimpan ke draft.");
+      setError(failure instanceof Error ? failure.message : "Data layanan tidak dapat disimpan.");
     } finally {
       setBusy(false);
     }
@@ -478,7 +449,7 @@ function ServiceForm({ kind, entry, onSave }: {
       <input required type="number" min="1" max="365" name="days" aria-label="Estimasi pengerjaan dalam hari" defaultValue={service?.estimated_days ?? 2} placeholder="Estimasi hari" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
     </>}
     <label className="flex min-h-11 items-center gap-2 text-sm text-muted"><input type="checkbox" name="isActive" defaultChecked={entry?.is_active ?? true} /> Tersedia untuk dipesan</label>
-    <button disabled={busy} className="min-h-11 rounded-lg border border-brand-500 px-4 text-sm font-bold text-brand-700 disabled:opacity-50">{busy ? "Menyimpan lokal..." : entry ? "Simpan ke draft lokal" : "Tambah ke draft lokal"}</button>
+    <button disabled={busy} className="min-h-11 rounded-lg border border-brand-500 px-4 text-sm font-bold text-brand-700 disabled:opacity-50">{busy ? "Memproses..." : entry ? "Simpan perubahan" : "Tambahkan"}</button>
     {error && <p role="alert" className="text-sm text-red-700 sm:col-span-2">{error}</p>}
   </form>;
 
@@ -526,7 +497,7 @@ function EquipmentForm({ entry, onSave }: {
       });
       if (!entry) formElement.reset();
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : "Data alat tidak dapat disimpan ke draft.");
+      setError(failure instanceof Error ? failure.message : "Data alat tidak dapat disimpan.");
     } finally {
       setBusy(false);
     }
@@ -538,7 +509,7 @@ function EquipmentForm({ entry, onSave }: {
     <select name="priceUnit" aria-label="Satuan harga sewa" defaultValue={entry?.price_unit ?? ""} className="min-h-11 rounded-lg border border-soft bg-white px-3 text-sm"><option value="">Pilih satuan harga</option><option value="hari">Per hari</option><option value="minggu">Per minggu</option><option value="bulan">Per bulan</option></select>
     <input required type="number" min="0" max="100000" name="quantity" aria-label="Jumlah stok alat tersedia" defaultValue={entry?.quantity_available ?? 0} placeholder="Stok tersedia" className="min-h-11 rounded-lg border border-soft px-3 text-sm" />
     <label className="flex min-h-11 items-center gap-2 text-sm text-muted"><input type="checkbox" name="isActive" defaultChecked={entry?.is_active ?? true} /> Tampilkan di peminjaman alat</label>
-    <button disabled={busy} className="min-h-11 rounded-lg border border-brand-500 px-4 text-sm font-bold text-brand-700 disabled:opacity-50">{busy ? "Menyimpan lokal..." : entry ? "Simpan ke draft lokal" : "Tambah ke draft lokal"}</button>
+    <button disabled={busy} className="min-h-11 rounded-lg border border-brand-500 px-4 text-sm font-bold text-brand-700 disabled:opacity-50">{busy ? "Memproses..." : entry ? "Simpan perubahan" : "Tambahkan"}</button>
     {error && <p role="alert" className="text-sm text-red-700 sm:col-span-2">{error}</p>}
   </form>;
 
@@ -655,20 +626,7 @@ export function AdminPanel() {
       setToken(accessToken);
       if (!draftInitialized.current) {
         draftInitialized.current = true;
-        try {
-          const saved = window.localStorage.getItem(draftStorageKey);
-          if (saved) {
-            const parsed: unknown = JSON.parse(saved);
-            if (!isConfigDraft(parsed)) throw new Error("Draft lokal tidak sesuai format.");
-            setDraft(parsed);
-            setDraftNotice("Draft lokal dipulihkan dari penyimpanan perangkat ini.");
-          } else {
-            setDraft(toConfigDraft(result));
-          }
-        } catch (failure) {
-          setDraft(toConfigDraft(result));
-          setDraftNotice(failure instanceof Error ? `Draft lokal tidak dapat dipulihkan: ${failure.message}` : "Draft lokal tidak dapat dipulihkan.");
-        }
+        setDraft(toConfigDraft(result));
       } else if (force) {
         setOrderRefreshKey((value) => value + 1);
       }
@@ -741,16 +699,6 @@ export function AdminPanel() {
     }
   }, [loadData, router]);
 
-  useEffect(() => {
-    if (!draft || !data) return;
-    try {
-      if (hasConfigChanges(draft, data)) window.localStorage.setItem(draftStorageKey, JSON.stringify(draft));
-      else window.localStorage.removeItem(draftStorageKey);
-    } catch (failure) {
-      setDraftNotice(failure instanceof Error ? `Draft hanya tersimpan selama halaman terbuka: ${failure.message}` : "Draft hanya tersimpan selama halaman terbuka.");
-    }
-  }, [data, draft]);
-
   const refresh = useCallback(async () => {
     if (token) await loadData(token, true);
   }, [loadData, token]);
@@ -813,7 +761,7 @@ export function AdminPanel() {
       }
       return current;
     });
-    setDraftNotice("Perubahan disimpan lokal di perangkat ini. Belum dikirim ke server.");
+    setDraftNotice("Perubahan belum disimpan.");
   }
 
   async function saveConfig() {
@@ -871,7 +819,7 @@ export function AdminPanel() {
           : "Perubahan tersimpan di server, tetapi data terbaru belum dapat dimuat. Tekan Muat ulang.");
       }
     } catch (failure) {
-      setConfigError(failure instanceof Error ? failure.message : "Perubahan belum dapat disimpan. Draft lokal tetap tersimpan.");
+      setConfigError(failure instanceof Error ? failure.message : "Perubahan belum dapat disimpan.");
     } finally {
       setSavingConfig(false);
     }
@@ -880,8 +828,7 @@ export function AdminPanel() {
   function discardDraft() {
     if (!data) return;
     setDraft(toConfigDraft(data));
-    setDraftNotice("Draft lokal dibuang.");
-    window.localStorage.removeItem(draftStorageKey);
+    setDraftNotice("Perubahan dibatalkan.");
   }
 
   const activeOrders = useMemo(() => data?.recentOrders.filter((order) => !order.archived_at) ?? [], [data]);
@@ -905,9 +852,20 @@ export function AdminPanel() {
   ] as const;
 
   return <main className="min-h-screen bg-page">
-    <header className="border-b border-soft bg-white">
+    <header className="border-b border-brand-100 bg-gradient-to-r from-white via-white to-brand-50/70">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <div><p className="text-sm font-bold text-brand-700">Cuci.in · Panel admin</p><p className="text-xs text-muted">{email}</p></div>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-700/20 ring-4 ring-brand-500/10">
+            <Shirt size={22} strokeWidth={2.1} aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-lg font-extrabold leading-none tracking-tight text-brand-700 sm:text-xl">Cuci.in</p>
+              <span className="rounded-full border border-brand-200 bg-white/80 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-brand-700">Admin</span>
+            </div>
+            <p className="mt-1 max-w-[48vw] truncate text-xs text-muted sm:max-w-none">{email}</p>
+          </div>
+        </div>
         <div className="flex gap-2">
           <button onClick={() => void refresh()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-soft px-3 text-sm font-semibold text-ink"><RefreshCw size={15} /> Muat ulang</button>
           <button onClick={() => void logout()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-soft px-3 text-sm font-semibold text-ink"><LogOut size={15} /> Keluar</button>
@@ -920,7 +878,7 @@ export function AdminPanel() {
         {nav.map(({ id, label, icon: Icon }) => <button key={id} aria-pressed={tab === id} onClick={() => setTab(id)} className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-xs font-bold transition-colors duration-200 sm:shrink-0 sm:px-4 sm:text-sm ${tab === id ? "bg-brand-500 text-white" : "border border-soft bg-white text-muted hover:bg-soft/50"}`}><Icon size={16} />{label}</button>)}
       </div>
       {dirty && <Card className="mb-5 flex flex-wrap items-center justify-between gap-3 border-brand-200 bg-white p-4">
-        <div><p className="font-bold text-ink">Ada perubahan draft lokal</p><p className="mt-1 text-sm text-muted">{draftNotice || "Belum dikirim ke server. Simpan hanya akan mengirim perubahan yang berbeda."}</p></div>
+        <div><p className="font-bold text-ink">Ada perubahan belum disimpan</p><p className="mt-1 text-sm text-muted">{draftNotice || "Simpan untuk menerapkan perubahan."}</p></div>
         <div className="flex gap-2">
           <button disabled={savingConfig} onClick={discardDraft} className="min-h-11 rounded-lg border border-soft px-4 text-sm font-bold text-muted disabled:opacity-50">Buang draft</button>
           <button disabled={savingConfig} onClick={() => void saveConfig()} className="min-h-11 rounded-lg bg-brand-500 px-4 text-sm font-bold text-white disabled:opacity-50">{savingConfig ? "Menyimpan..." : "Simpan perubahan"}</button>
@@ -972,12 +930,12 @@ export function AdminPanel() {
       </section>}
       {tab === "services" && draft && <section>
         <h1 className="mb-4 text-2xl font-extrabold text-ink">Layanan & harga</h1>
-        <p className="mb-5 text-sm text-muted">Edit dan tambahkan layanan di draft lokal. Perubahan harga berlaku untuk pesanan baru setelah disimpan ke server.</p>
+        <p className="mb-5 text-sm text-muted">Edit dan tambahkan layanan. Perubahan harga berlaku untuk pesanan baru setelah disimpan.</p>
         <ServicesPanel draft={draft} onSave={async (payload) => stageCatalogChange(payload)} />
       </section>}
       {tab === "operations" && draft && <section>
         <h1 className="mb-2 text-2xl font-extrabold text-ink">Pengaturan</h1>
-        <p className="mb-5 text-sm text-muted">Kuota harian, penerimaan pesanan, dan jam buka laundry tersimpan di draft lokal sampai Anda menekan Simpan perubahan.</p>
+        <p className="mb-5 text-sm text-muted">Atur kuota harian, penerimaan pesanan, dan jam buka laundry. Tekan Simpan perubahan untuk menerapkannya.</p>
         <OperationsPanel settings={draft.settings} usedTodayKg={data.stats.usedTodayKg} onChange={(settings) => setDraft((current) => current ? { ...current, settings } : current)} />
       </section>}
     </div>

@@ -17,7 +17,7 @@ npm install
 Salin folder berikut ke proyek (jika ada file dengan nama sama, bandingkan dulu, jangan langsung timpa):
 - `app/layout.tsx` dan `app/page.tsx`
 - `components/` (ui, layout, landing)
-- `lib/` (utils, mock-data, services)
+- `lib/` (utils, services, integrations)
 - `types/index.ts`
 
 ## 4. Pasang tema warna
@@ -66,7 +66,7 @@ Buka http://localhost:3000
    ```
 5. Jalankan `npm run dev`. Semua akun operasional masuk melalui `/login`; setelah role diverifikasi, admin diarahkan ke `/admin` dan petugas ke `/petugas`. Jika belum login, membuka salah satu panel akan mengarahkan pengguna ke `/login`.
 
-Panel `/admin` mengelola seluruh pesanan, layanan, harga, peminjaman alat, kuota, jam operasional, dan data bisnis. Petugas hanya dapat melihat pesanan, mengubah status, mencatat berat/pembayaran, dan mengirim pesan singkat kepada pelanggan; pesan itu tampil pada halaman `/cek-status`. Pembuatan/pengarsipan pesanan serta persetujuan kuota hanya untuk admin. Pengaturan yang diedit disimpan sebagai draft di browser dan baru dikirim setelah admin menekan **Simpan perubahan**. Halaman `/peminjaman-alat` menerima permintaan tanpa login pelanggan; harga alat yang belum diatur ditampilkan sebagai “Tanya ke admin”. Enam jenis alat awal dimasukkan oleh migrasi Supabase.
+Panel `/admin` mengelola seluruh pesanan, layanan, harga, peminjaman alat, kuota, jam operasional, dan data bisnis. Petugas hanya dapat melihat pesanan, mengubah status, mencatat berat/pembayaran, dan mengirim pesan singkat kepada pelanggan; pesan itu tampil pada halaman `/cek-status`. Pembuatan/pengarsipan pesanan serta persetujuan kuota hanya untuk admin. Perubahan pengaturan diterapkan setelah admin menekan **Simpan perubahan**. Halaman `/peminjaman-alat` menerima permintaan tanpa login pelanggan; harga alat yang belum diatur ditampilkan sebagai “Tanya ke admin”. Enam jenis alat awal dimasukkan oleh migrasi Supabase.
 
 Daftar pesanan di panel dimuat 30 item per halaman, sedangkan statistik pendapatan dan kuota dihitung di database untuk menghindari pengiriman seluruh riwayat pesanan ke browser. Terapkan semua migrasi sebelum memakai fitur baru.
 
@@ -80,7 +80,6 @@ Kode pesanan baru memakai format `LDR-XXXX-XXXX`; kode panjang lama tetap dapat 
 | `components/layout/Footer.tsx` | Footer |
 | `components/landing/*` | Section Landing Page |
 | `components/booking/*` | Form pemesanan dan pencarian laundry sekitar |
-| `lib/mock-data/landing.ts` | Jam operasional dan panduan pemesanan statis |
 | `app/api/*` | API server untuk katalog, pembuatan pesanan, dan pelacakan Supabase |
 | `lib/supabase/admin.ts` | Klien Supabase server-only |
 | `lib/supabase/browser.ts` | Klien Supabase browser dengan public anon/publishable key |
@@ -89,5 +88,4 @@ Kode pesanan baru memakai format `LDR-XXXX-XXXX`; kode panjang lama tetap dapat 
 | `types/index.ts` | Tipe frontend |
 
 ## Catatan
-- Pesanan `localStorage` lama tidak otomatis dipindahkan ke Supabase.
 - Hasil laundry terdekat mengikuti kelengkapan data OpenStreetMap di sekitar lokasi.
