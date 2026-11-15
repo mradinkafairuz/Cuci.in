@@ -49,4 +49,6 @@ export interface OrderTracking {
   total?: number | null;
   estimatedDone: string;
   capacityApprovalStatus?: "not_required" | "pending";
+  processingMethod?: string | null;
+  priceQuoteStatus?: PriceQuoteStatus;
 }

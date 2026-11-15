@@ -288,78 +288,6 @@ export type Database = {
           },
         ]
       }
-      laundry_items: {
-        Row: {
-          created_at: string
-          id: string
-          is_active: boolean
-          name: string
-          price: number
-          slug: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name: string
-          price: number
-          slug: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name?: string
-          price?: number
-          slug?: string
-        }
-        Relationships: []
-      }
-      order_items: {
-        Row: {
-          created_at: string
-          id: string
-          item_id: string | null
-          item_name: string
-          order_id: string
-          quantity: number
-          unit_price: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          item_id?: string | null
-          item_name: string
-          order_id: string
-          quantity: number
-          unit_price: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          item_id?: string | null
-          item_name?: string
-          order_id?: string
-          quantity?: number
-          unit_price?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "laundry_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       business_settings: {
         Row: {
           business_hours: Json
@@ -417,48 +345,6 @@ export type Database = {
           price_unit?: "hari" | "minggu" | "bulan" | null
           quantity_available?: number
           updated_at?: string
-        }
-        Relationships: []
-      }
-      equipment_loans: {
-        Row: {
-          borrower_name: string
-          created_at: string
-          equipment_name: string
-          equipment_slug: string
-          id: string
-          notes: string | null
-          phone: string
-          quantity: number
-          return_date: string
-          start_date: string
-          status: "MENUNGGU" | "DISETUJUI" | "DIKEMBALIKAN" | "DITOLAK"
-        }
-        Insert: {
-          borrower_name: string
-          created_at?: string
-          equipment_name: string
-          equipment_slug: string
-          id?: string
-          notes?: string | null
-          phone: string
-          quantity?: number
-          return_date: string
-          start_date: string
-          status?: "MENUNGGU" | "DISETUJUI" | "DIKEMBALIKAN" | "DITOLAK"
-        }
-        Update: {
-          borrower_name?: string
-          created_at?: string
-          equipment_name?: string
-          equipment_slug?: string
-          id?: string
-          notes?: string | null
-          phone?: string
-          quantity?: number
-          return_date?: string
-          start_date?: string
-          status?: "MENUNGGU" | "DISETUJUI" | "DIKEMBALIKAN" | "DITOLAK"
         }
         Relationships: []
       }

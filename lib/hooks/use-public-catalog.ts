@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import type { LaundryItem, LaundryService, OperatingHour } from "@/types";
+import { LOCAL_LAUNDRY_ITEMS } from "@/lib/data/laundry-items";
+import { LOCAL_LAUNDRY_SERVICES } from "@/lib/data/laundry-services";
+import { operatingHours } from "@/lib/mock-data/landing";
 
 interface PublicCatalog {
   services: LaundryService[];
@@ -30,13 +33,24 @@ export function usePublicCatalog() {
       try {
         const response = await fetch("/api/catalog", { cache: "no-store" });
         const result: Partial<PublicCatalog> & { error?: string } = await response.json();
-        if (!response.ok || !result.services || !result.items || !result.equipment || !result.businessHours) {
+        if (!response.ok || !result.services || !result.items) {
           throw new Error(result.error ?? "Katalog tidak dapat dimuat.");
         }
-        if (active) setCatalog({ services: result.services, items: result.items, equipment: result.equipment, businessHours: result.businessHours });
-      } catch (loadError) {
         if (active) {
-          setCatalog({ services: LOCAL_LAUNDRY_SERVICES, items: LOCAL_LAUNDRY_ITEMS });
+          const localServices = result.services.length === 0;
+          const localItems = result.items.length === 0;
+          setCatalog({
+            services: localServices ? LOCAL_LAUNDRY_SERVICES : result.services,
+            items: localItems ? LOCAL_LAUNDRY_ITEMS : result.items,
+            equipment: result.equipment ?? [],
+            businessHours: result.businessHours?.length ? result.businessHours : operatingHours,
+          });
+          setUsingLocalServices(localServices);
+          setUsingLocalItems(localItems);
+        }
+      } catch {
+        if (active) {
+          setCatalog({ services: LOCAL_LAUNDRY_SERVICES, items: LOCAL_LAUNDRY_ITEMS, equipment: [], businessHours: operatingHours });
           setUsingLocalServices(true);
           setUsingLocalItems(true);
           setError("");

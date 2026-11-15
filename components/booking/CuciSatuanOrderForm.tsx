@@ -109,7 +109,7 @@ export function CuciSatuanOrderForm({ initialItemId }: { initialItemId?: string 
           <h2 className="text-xl font-bold text-ink">1. Pilih jenis pakaian</h2>
           <p className="mt-1 text-sm text-muted">Harga dihitung per item dan langsung terlihat di ringkasan pesanan.</p>
           {catalogLoading && <p role="status" className="mt-4 text-sm text-muted">Menyiapkan daftar cucian...</p>}
-          {!catalogLoading && !catalogError && items.length === 0 && !catalog?.catalogWarning && <p className="mt-4 text-sm text-muted">Belum ada jenis cucian aktif. Silakan hubungi pengelola laundry.</p>}
+          {!catalogLoading && !catalogError && items.length === 0 && <p className="mt-4 text-sm text-muted">Belum ada jenis cucian aktif. Silakan hubungi pengelola laundry.</p>}
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {items.map((item) => (
               <button key={item.id} type="button" onClick={() => setItemId(item.id)} aria-pressed={item.id === itemId} className={`flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${item.id === itemId ? "border-brand-500 bg-brand-50 ring-1 ring-brand-500" : "border-soft bg-white hover:border-brand-300"}`}>
