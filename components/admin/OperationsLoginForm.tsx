@@ -7,6 +7,9 @@ import { getOperationalRole } from "@/lib/admin/role";
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 function getErrorMessage(error: unknown) {
+  if (error instanceof Error && /NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY/.test(error.message)) {
+    return "Login belum tersedia saat ini.";
+  }
   return error instanceof Error ? error.message : "Login belum berhasil. Silakan coba lagi.";
 }
 
@@ -34,7 +37,11 @@ export function OperationsLoginForm() {
           setError("Akun ini belum memiliki akses admin atau petugas.");
         }
       } catch (failure) {
-        if (active) setError(getErrorMessage(failure));
+        // Missing local Supabase config should not show a technical error before
+        // the user tries to sign in.
+        if (active && !(failure instanceof Error && /NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY/.test(failure.message))) {
+          setError(getErrorMessage(failure));
+        }
       } finally {
         if (active) setChecking(false);
       }
