@@ -59,6 +59,54 @@ export type Database = {
         }
         Relationships: []
       }
+      memberships: {
+        Row: {
+          consent_at: string
+          created_at: string
+          discount_percent: number
+          email: string | null
+          full_name: string
+          id: string
+          is_active: boolean
+          member_code: string
+          monthly_price: number
+          package_code: string
+          package_name: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          consent_at?: string
+          created_at?: string
+          discount_percent?: number
+          email?: string | null
+          full_name: string
+          id?: string
+          is_active?: boolean
+          member_code: string
+          monthly_price?: number
+          package_code?: string
+          package_name?: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          consent_at?: string
+          created_at?: string
+          discount_percent?: number
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          member_code?: string
+          monthly_price?: number
+          package_code?: string
+          package_name?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: []
+      }
       order_logs: {
         Row: {
           changed_by: string | null

@@ -22,6 +22,7 @@ export function Footer() {
           <h3 className="mb-3 font-semibold">Layanan</h3>
           <ul className="space-y-2 text-sm text-white/75">
             <li><Link href="/peminjaman-alat" className="inline-flex min-h-11 items-center hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Sewa alat laundry</Link></li>
+            <li><Link href="/membership" className="inline-flex min-h-11 items-center hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">Membership</Link></li>
           </ul>
         </div>
 
