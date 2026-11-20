@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { BadgeDollarSign, BookOpen, Clock3, House, MapPin, MoreHorizontal, PackageSearch, Shirt, ShoppingBag, Sparkles, Wrench, X } from "lucide-react";
+import { BadgeDollarSign, BookOpen, Clock3, Crown, House, MapPin, MoreHorizontal, PackageSearch, Shirt, ShoppingBag, Sparkles, Wrench, X } from "lucide-react";
 import { LiquidNavbar, type LiquidNavItem } from "@/components/ui/liquid-glass-navbar";
 
 const navItems: LiquidNavItem[] = [
@@ -16,10 +16,11 @@ const navItems: LiquidNavItem[] = [
   { label: "Cek Status", href: "/cek-status", icon: <PackageSearch size={18} strokeWidth={1.8} />, fx: "drop" },
   { label: "Pesan", href: "/pesan", icon: <ShoppingBag size={18} strokeWidth={1.8} />, fx: "pop" },
   { label: "Sewa Alat", href: "/peminjaman-alat", icon: <Wrench size={18} strokeWidth={1.8} />, fx: "pop" },
+  { label: "Membership", href: "/membership", icon: <Crown size={18} strokeWidth={1.8} />, fx: "glow" },
 ];
 
 const primaryNavItems = [navItems[0], navItems[1], navItems[2], navItems[7]];
-const moreNavItems = [navItems[3], navItems[4], navItems[5], navItems[6], navItems[8]];
+const moreNavItems = [navItems[3], navItems[4], navItems[5], navItems[6], navItems[8], navItems[9]];
 
 function MoreMenu({ id, active, onSelect, className }: {
   id: string;
@@ -50,7 +51,7 @@ function MoreMenu({ id, active, onSelect, className }: {
 
 export function Navbar() {
   const pathname = usePathname();
-  const routeActive = pathname === "/peminjaman-alat" || pathname === "/sewa-alat" ? 8 : pathname === "/pesan-satuan" ? 3 : pathname === "/pesan" ? 7 : pathname === "/cek-status" ? 6 : 0;
+  const routeActive = pathname === "/membership" ? 9 : pathname === "/peminjaman-alat" || pathname === "/sewa-alat" ? 8 : pathname === "/pesan-satuan" ? 3 : pathname === "/pesan" ? 7 : pathname === "/cek-status" ? 6 : 0;
   const headerRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(routeActive);
   const [isPastHeader, setIsPastHeader] = useState(pathname !== "/");

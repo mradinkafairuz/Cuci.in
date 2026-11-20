@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Banknote, ClipboardList, LogOut, Plus, RefreshCw, Shirt, Users, WashingMachine } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { EquipmentLoanRequestsPanel } from "@/components/admin/EquipmentLoanRequestsPanel";
+import { MembershipsPanel } from "@/components/admin/MembershipsPanel";
 import { adminRequest } from "@/lib/admin/request";
 import { getOperationalRole } from "@/lib/admin/role";
 import { formatRupiah } from "@/lib/utils/format";
@@ -598,7 +599,7 @@ export function AdminPanel() {
   const [email, setEmail] = useState("");
   const [data, setData] = useState<AdminData | null>(null);
   const [draft, setDraft] = useState<ConfigDraft | null>(null);
-  const [tab, setTab] = useState<"overview" | "orders" | "services" | "operations">("overview");
+  const [tab, setTab] = useState<"overview" | "orders" | "services" | "operations" | "members">("overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [configError, setConfigError] = useState("");
@@ -848,6 +849,7 @@ export function AdminPanel() {
     { id: "overview", label: "Ringkasan", icon: Banknote },
     { id: "orders", label: "Pesanan", icon: ClipboardList },
     { id: "services", label: "Layanan & harga", icon: WashingMachine },
+    { id: "members", label: "Membership", icon: Users },
     { id: "operations", label: "Pengaturan", icon: RefreshCw },
   ] as const;
 
@@ -932,6 +934,11 @@ export function AdminPanel() {
         <h1 className="mb-4 text-2xl font-extrabold text-ink">Layanan & harga</h1>
         <p className="mb-5 text-sm text-muted">Edit dan tambahkan layanan. Perubahan harga berlaku untuk pesanan baru setelah disimpan.</p>
         <ServicesPanel draft={draft} onSave={async (payload) => stageCatalogChange(payload)} />
+      </section>}
+      {tab === "members" && <section>
+        <h1 className="mb-2 text-2xl font-extrabold text-ink">Membership</h1>
+        <p className="mb-5 text-sm text-muted">Daftar member dan kode membership yang diterbitkan.</p>
+        <MembershipsPanel token={token} />
       </section>}
       {tab === "operations" && draft && <section>
         <h1 className="mb-2 text-2xl font-extrabold text-ink">Pengaturan</h1>
