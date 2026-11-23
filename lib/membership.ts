@@ -1,25 +1,44 @@
-export const MEMBERSHIP_PLANS = [
+export type MembershipPlanCode = "hemat" | "prioritas";
+
+export type MembershipPlan = {
+  id: string;
+  code: MembershipPlanCode;
+  name: string;
+  description: string;
+  monthly_price: number;
+  discount_percent: number;
+  priority_queue: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export const DEFAULT_MEMBERSHIP_PLANS: MembershipPlan[] = [
   {
+    id: "default-hemat",
     code: "hemat",
     name: "Hemat",
-    monthlyPrice: 15000,
-    discountPercent: 5,
     description: "Pilihan praktis untuk mendapatkan potongan harga setiap bulan.",
+    monthly_price: 15000,
+    discount_percent: 5,
+    priority_queue: false,
+    is_active: true,
+    created_at: "",
+    updated_at: "",
   },
   {
+    id: "default-prioritas",
     code: "prioritas",
     name: "Prioritas",
-    monthlyPrice: 30000,
-    discountPercent: 10,
     description: "Diskon lebih besar dan antrean layanan yang diprioritaskan.",
+    monthly_price: 30000,
+    discount_percent: 10,
+    priority_queue: true,
+    is_active: true,
+    created_at: "",
+    updated_at: "",
   },
-] as const;
-
-export type MembershipPlanCode = (typeof MEMBERSHIP_PLANS)[number]["code"];
-
-export function getMembershipPlan(code: unknown) {
-  return MEMBERSHIP_PLANS.find((plan) => plan.code === code) ?? null;
-}
+];
 
 export function formatMembershipPrice(price: number) {
   return new Intl.NumberFormat("id-ID", {

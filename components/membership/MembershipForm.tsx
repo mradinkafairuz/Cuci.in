@@ -1,21 +1,42 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, BadgeCheck, CheckCircle2, ContactRound, Crown, Hash, LoaderCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/Card";
-import { formatMembershipPrice, MEMBERSHIP_PLANS, type MembershipPlanCode } from "@/lib/membership";
+import { DEFAULT_MEMBERSHIP_PLANS, formatMembershipPrice, type MembershipPlan, type MembershipPlanCode } from "@/lib/membership";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 
 export function MembershipForm() {
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlanCode | "">("");
+  const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+  const [plansError, setPlansError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [memberCode, setMemberCode] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const plan = MEMBERSHIP_PLANS.find((item) => item.code === selectedPlan);
+  const plan = plans.find((item) => item.code === selectedPlan);
+
+  const loadPlans = useCallback(async () => {
+    setLoadingPlans(true);
+    setPlansError("");
+    try {
+      const response = await fetch("/api/membership-plans", { cache: "no-store" });
+      const result = await response.json() as { plans?: MembershipPlan[]; error?: string };
+      if (!response.ok || !Array.isArray(result.plans)) throw new Error(result.error ?? "Paket membership belum dapat dimuat.");
+      setPlans(result.plans.length > 0 ? result.plans : []);
+    } catch {
+      // Paket cadangan tetap ditampilkan saat tabel Supabase belum tersedia.
+      setPlans(DEFAULT_MEMBERSHIP_PLANS);
+    } finally {
+      setLoadingPlans(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadPlans(); }, [loadPlans]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,7 +76,7 @@ export function MembershipForm() {
       <span className="mx-auto grid size-14 place-items-center rounded-full bg-amber-100 text-amber-700"><CheckCircle2 size={29} /></span>
       <p className="mt-5 text-sm font-bold uppercase tracking-[0.14em] text-brand-700">Pendaftaran diterima</p>
       <h2 className="mt-2 text-2xl font-extrabold text-ink sm:text-3xl">Paket {plan.name} dipilih</h2>
-      <p className="mt-2 text-sm text-muted">{formatMembershipPrice(plan.monthlyPrice)} per bulan · diskon {plan.discountPercent}%</p>
+      <p className="mt-2 text-sm text-muted">{formatMembershipPrice(plan.monthly_price)} per bulan · diskon {plan.discount_percent}%</p>
       <p className="mt-3 text-sm leading-6 text-muted">Status membership menunggu konfirmasi pembayaran. Kode member adalah ID unik pendaftaran Anda; simpan untuk referensi saat menghubungi Cuci.in.</p>
       <p className="mt-4 rounded-2xl bg-soft px-4 py-4 font-mono text-2xl font-extrabold tracking-wider text-brand-700">{memberCode}</p>
       <Link href="/" className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-500 px-5 text-sm font-bold text-white hover:bg-brand-600">Kembali ke halaman utama</Link>
@@ -79,22 +100,25 @@ export function MembershipForm() {
         <h2 className="mt-3 text-2xl font-extrabold text-ink">Pilih membership yang sesuai</h2>
         <p className="mt-1 text-sm leading-6 text-muted">Pilih paket dahulu. Data diri diisi pada langkah berikutnya.</p>
       </div>
+      {loadingPlans && <Card className="py-8 text-center text-sm text-muted"><LoaderCircle size={18} className="mx-auto mb-2 animate-spin" />Memuat paket membership...</Card>}
+      {!loadingPlans && plansError && <Card className="py-7 text-center"><p role="alert" className="text-sm text-red-700">{plansError}</p><button type="button" onClick={() => void loadPlans()} className="mt-3 min-h-10 rounded-lg border border-soft px-4 text-sm font-bold text-ink">Coba lagi</button></Card>}
+      {!loadingPlans && !plansError && plans.length === 0 && <Card className="py-7 text-center text-sm text-muted">Belum ada paket membership yang tersedia.</Card>}
       <div className="grid gap-4 md:grid-cols-2">
-        {MEMBERSHIP_PLANS.map((item) => {
+        {plans.map((item) => {
           const isSelected = selectedPlan === item.code;
           return <motion.div key={item.code} layout className="h-full" animate={{ y: isSelected ? -2 : 0, scale: isSelected ? 1.012 : 1 }} transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.8 }}>
             <Card className={`flex h-full min-h-[17.5rem] flex-col p-5 transition-[border-color,box-shadow] duration-300 ease-out ${isSelected ? "border-brand-500 shadow-md ring-2 ring-brand-500/20" : "hover:border-brand-300 hover:shadow-md"}`}>
               <div className="flex min-h-[5.5rem] items-start justify-between gap-3">
                 <div>
                   <h3 className="text-xl font-extrabold text-ink">{item.name}</h3>
-                  <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
+              <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
                 </div>
-                {item.code === "prioritas" && <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">Lebih hemat</span>}
+              {item.priority_queue && <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">Antrean prioritas</span>}
               </div>
-              <p className="mt-4 text-2xl font-extrabold text-brand-700">{formatMembershipPrice(item.monthlyPrice)}<span className="ml-1 text-sm font-medium text-muted">/bulan</span></p>
+            <p className="mt-4 text-2xl font-extrabold text-brand-700">{formatMembershipPrice(item.monthly_price)}<span className="ml-1 text-sm font-medium text-muted">/bulan</span></p>
               <div className="mt-2 mb-4 min-h-12 text-sm leading-6">
-                <p className="font-semibold text-ink">Diskon {item.discountPercent}% untuk layanan laundry</p>
-                <p className="text-muted">{item.code === "prioritas" ? "Termasuk antrean layanan prioritas." : "Berlaku untuk setiap transaksi laundry."}</p>
+                <p className="font-semibold text-ink">Diskon {item.discount_percent}% untuk layanan laundry</p>
+                <p className="text-muted">{item.priority_queue ? "Termasuk antrean layanan prioritas." : "Berlaku untuk setiap transaksi laundry."}</p>
               </div>
               <motion.button type="button" whileTap={{ scale: 0.985 }} transition={{ type: "spring", stiffness: 240, damping: 24, mass: 0.7 }} onClick={() => { setSelectedPlan(item.code); setError(""); }} aria-pressed={isSelected} className={`mt-auto inline-flex min-h-11 w-full items-center justify-center rounded-xl border px-4 text-sm font-bold transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-out ${isSelected ? "border-brand-600 bg-brand-500 text-white shadow-sm" : "border-brand-300 text-brand-700 hover:bg-brand-50 active:scale-[0.985]"}`}>
                 {isSelected ? "Paket dipilih" : "Pilih paket ini"}
@@ -104,7 +128,7 @@ export function MembershipForm() {
         })}
       </div>
       {error && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-      <button type="button" disabled={!selectedPlan} onClick={() => { setShowForm(true); setError(""); }} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 font-bold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50">
+      <button type="button" disabled={!selectedPlan || loadingPlans || Boolean(plansError)} onClick={() => { setShowForm(true); setError(""); }} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 font-bold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50">
         Lanjut isi data diri
       </button>
     </div>;
@@ -115,7 +139,7 @@ export function MembershipForm() {
     <div className="mb-6">
       <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-3 py-1.5 text-xs font-bold text-brand-700"><Crown size={15} /> Paket {plan?.name}</span>
       <h2 className="mt-3 text-2xl font-extrabold text-ink">Lengkapi data membership</h2>
-      <p className="mt-1 text-sm leading-6 text-muted">{plan && <>{formatMembershipPrice(plan.monthlyPrice)}/bulan · diskon {plan.discountPercent}%.</>} Setelah mendaftar, admin akan menghubungi Anda untuk konfirmasi pembayaran dan aktivasi.</p>
+      <p className="mt-1 text-sm leading-6 text-muted">{plan && <>{formatMembershipPrice(plan.monthly_price)}/bulan · diskon {plan.discount_percent}%.</>} Setelah mendaftar, admin akan menghubungi Anda untuk konfirmasi pembayaran dan aktivasi.</p>
     </div>
 
     <form onSubmit={submit} noValidate className="space-y-4">

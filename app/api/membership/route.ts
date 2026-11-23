@@ -1,7 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getMembershipPlan } from "@/lib/membership";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 
 export const runtime = "nodejs";
@@ -31,9 +30,9 @@ export async function POST(request: Request) {
   const fullName = typeof body.fullName === "string" ? body.fullName.trim() : "";
   const submittedPhone = typeof body.phone === "string" ? body.phone.trim() : "";
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-  const plan = getMembershipPlan(body.planCode);
+  const planCode = body.planCode === "hemat" || body.planCode === "prioritas" ? body.planCode : null;
   const consent = body.consent === true;
-  if (fullName.length < 2 || fullName.length > 120 || !isValidIndonesianPhone(submittedPhone) || !consent || !plan) {
+  if (fullName.length < 2 || fullName.length > 120 || !isValidIndonesianPhone(submittedPhone) || !consent || !planCode) {
     return NextResponse.json({ error: "Periksa paket, nama, nomor WhatsApp, dan persetujuan pendaftaran." }, { status: 400 });
   }
   if (email.length > 254 || (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
@@ -46,6 +45,15 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createSupabaseAdminClient();
+    const { data: plan, error: planError } = await supabase
+      .from("membership_plans")
+      .select("code, name, monthly_price, discount_percent, is_active")
+      .eq("code", planCode)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (planError) throw planError;
+    if (!plan) return NextResponse.json({ error: "Paket ini sedang tidak tersedia. Pilih paket lain." }, { status: 409 });
+
     const { data, error } = await supabase
       .from("memberships")
       .insert({
@@ -56,8 +64,8 @@ export async function POST(request: Request) {
         consent_at: new Date().toISOString(),
         package_code: plan.code,
         package_name: plan.name,
-        monthly_price: plan.monthlyPrice,
-        discount_percent: plan.discountPercent,
+        monthly_price: plan.monthly_price,
+        discount_percent: plan.discount_percent,
         status: "pending_payment",
         is_active: false,
       })
