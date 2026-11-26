@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, PackageCheck } from "lucide-react";
+import { CheckCircle2, PackageCheck } from "@/lib/icons";
 import { Card } from "@/components/ui/Card";
 import { usePublicCatalog } from "@/lib/hooks/use-public-catalog";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";

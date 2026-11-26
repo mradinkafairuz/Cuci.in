@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Eye, EyeOff, LockKeyhole, Shirt } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LockKeyhole, Shirt } from "@/lib/icons";
 
 export function LoginForm({ initialRole = "admin" }: { initialRole?: "admin" | "petugas" }) {
   const router = useRouter();

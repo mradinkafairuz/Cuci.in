@@ -1,5 +1,6 @@
 import { CalendlyCarousel, type CarouselItem } from "@/components/ui/connected-carousel";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { LaundryDecor } from "@/components/landing/LaundryDecor";
 
 const customerStories: CarouselItem[] = [
   {
@@ -61,8 +62,9 @@ const customerStories: CarouselItem[] = [
 
 export function CustomerReviews() {
   return (
-    <section className="overflow-hidden bg-page px-4 py-14 sm:px-6 sm:py-18">
-      <div className="mx-auto max-w-6xl">
+    <section className="relative isolate overflow-hidden bg-page px-4 py-14 sm:px-6 sm:py-18">
+      <LaundryDecor variant={3} />
+      <div className="relative z-10 mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="Cerita pelanggan"
           title="Laundry lebih ringan, hari lebih lega"

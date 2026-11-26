@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Banknote, ClipboardList, LogOut, Plus, RefreshCw, Shirt, Users, WashingMachine } from "lucide-react";
+import { Banknote, ClipboardList, LogOut, Plus, RefreshCw, Shirt, Users, WashingMachine } from "@/lib/icons";
 import { Card } from "@/components/ui/Card";
 import { EquipmentLoanRequestsPanel } from "@/components/admin/EquipmentLoanRequestsPanel";
 import { MembershipsPanel } from "@/components/admin/MembershipsPanel";

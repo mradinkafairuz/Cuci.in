@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" fill="none">
+  <defs><linearGradient id="bg" x1="160" y1="20" x2="740" y2="600" gradientUnits="userSpaceOnUse"><stop stop-color="#EAF5F6"/><stop offset="1" stop-color="#CFE3E7"/></linearGradient><linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#D6E2E4"/></linearGradient></defs>
+  <path fill="url(#bg)" d="M0 0h960v600H0z"/><path fill="#F8FBFB" d="M92 0h776v510H92z"/><path fill="#E2ECEC" d="M0 475h960v125H0z"/>
+  <path fill="#D6E7E8" d="M129 93h105v383H129zM255 93h105v383H255zM600 93h105v383H600zM726 93h105v383H726z"/>
+  <g fill="url(#steel)" stroke="#B9CED1" stroke-width="4">
+    <rect x="147" y="126" width="258" height="352" rx="24"/><rect x="429" y="126" width="258" height="352" rx="24"/>
+  </g>
+  <g fill="#DCE9EB" stroke="#9BB9BE" stroke-width="8"><circle cx="276" cy="304" r="91"/><circle cx="558" cy="304" r="91"/></g>
+  <g fill="#92B9C1"><circle cx="276" cy="304" r="70"/><circle cx="558" cy="304" r="70"/></g>
+  <g fill="#C4DDE0"><path d="M229 319c21-35 57-37 83-13 15 14 28 18 45 12-13 37-39 57-77 52-34-4-55-23-51-51Z"/><path d="M511 319c21-35 57-37 83-13 15 14 28 18 45 12-13 37-39 57-77 52-34-4-55-23-51-51Z"/></g>
+  <rect x="173" y="150" width="100" height="14" rx="7" fill="#799BA1"/><circle cx="370" cy="157" r="8" fill="#6CA69D"/><circle cx="393" cy="157" r="8" fill="#E7B768"/>
+  <rect x="455" y="150" width="100" height="14" rx="7" fill="#799BA1"/><circle cx="652" cy="157" r="8" fill="#6CA69D"/><circle cx="675" cy="157" r="8" fill="#E7B768"/>
+  <path fill="#D7B985" d="M158 447h520v31H158z"/><path fill="#9BAFB0" d="M181 478h18v92h-18zm458 0h18v92h-18z"/>
+  <path fill="#F4F8F7" d="M222 394h93v52h-93z"/><path fill="#A6C2C6" d="M228 385h82v15h-82z"/><path fill="#F1C779" d="M329 421h92v25h-92z"/><path fill="#F7F9F8" d="M338 407h75v15h-75z"/>
+  <path fill="#6C9AA1" d="M720 455h126v103H720z"/><path fill="#4E7E88" d="M734 469h98v72h-98z"/><path fill="#E8F0EF" d="M750 477h67v18h-67z"/>
+</svg>

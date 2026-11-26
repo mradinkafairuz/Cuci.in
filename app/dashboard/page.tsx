@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, PackageSearch, ShoppingBag, Wrench } from "lucide-react";
+import { ArrowRight, PackageSearch, ShoppingBag, Wrench } from "@/lib/icons";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 

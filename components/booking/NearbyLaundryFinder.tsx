@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LoaderCircle, MapPin, Navigation } from "lucide-react";
+import { LoaderCircle, MapPin, Navigation } from "@/lib/icons";
 
 type Place = {
   id: number;

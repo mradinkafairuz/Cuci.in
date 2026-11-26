@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, ChevronDown, Clock3, Wrench } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock3, Wrench } from "@/lib/icons";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 
 type EquipmentOption = { id: string; name: string };

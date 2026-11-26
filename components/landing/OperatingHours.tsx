@@ -1,16 +1,18 @@
 "use client";
 
-import { Clock } from "lucide-react";
+import { Clock } from "@/lib/icons";
 import { Card } from "@/components/ui/Card";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { usePublicCatalog } from "@/lib/hooks/use-public-catalog";
+import { LaundryDecor } from "@/components/landing/LaundryDecor";
 
 export function OperatingHours() {
   const { catalog, isLoading, error } = usePublicCatalog();
   const hours = catalog?.businessHours ?? [];
   return (
-    <section id="jam-operasional" className="scroll-mt-20 bg-soft/50 py-20">
-      <div className="mx-auto max-w-2xl px-4 sm:px-6">
+    <section id="jam-operasional" className="relative isolate scroll-mt-20 overflow-hidden bg-soft/50 py-20">
+      <LaundryDecor variant={4} />
+      <div className="relative z-10 mx-auto max-w-2xl px-4 sm:px-6">
         <SectionHeading eyebrow="Jam Operasional" title="Kapan kami buka" />
         <Card className="divide-y divide-soft p-0">
           {isLoading && <p role="status" className="p-6 text-sm text-muted">Memuat jam operasional...</p>}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, LayoutDashboard, Shirt, Users, WashingMachine } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Shirt, Users, WashingMachine } from "@/lib/icons";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
 
 export type DashboardRole = "pelanggan" | "petugas" | "admin";

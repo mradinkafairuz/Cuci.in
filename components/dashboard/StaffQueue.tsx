@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Check, LoaderCircle, PackageOpen, Scale } from "lucide-react";
+import { Check, LoaderCircle, PackageOpen, Scale } from "@/lib/icons";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { usePublicCatalog } from "@/lib/hooks/use-public-catalog";

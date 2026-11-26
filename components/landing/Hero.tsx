@@ -1,14 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, CheckCircle2, Clock, Truck } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Clock, Shirt, Truck, WashingMachine } from "@/lib/icons";
 import { Button } from "@/components/ui/Button";
 
 const HERO_LAUNDRY_IMAGE = "https://images.unsplash.com/photo-1776356829215-37929a717f0d?auto=format&fit=crop&w=1600&q=82";
 
 export function Hero({ className = "" }: { className?: string } = {}) {
   return (
-    <section className={`overflow-hidden bg-gradient-to-br from-[#e7f1f4] via-[#f5f9fc] to-[#eef4f1] ${className}`}>
-      <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 sm:gap-10 sm:px-6 sm:py-14 md:grid-cols-[0.9fr_1.1fr] md:gap-8 md:py-20 lg:gap-12">
+    <section className={`relative isolate overflow-hidden bg-gradient-to-br from-[#e7f1f4] via-[#f5f9fc] to-[#eef4f1] ${className}`}>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden max-md:hidden">
+        <span className="absolute left-[max(0.5rem,calc((100%-72rem)/2-6rem))] top-[36%] grid size-12 place-items-center rounded-[1rem] border border-white/80 bg-[#cde8e5]/65 text-brand-600/60 shadow-sm backdrop-blur-sm motion-safe:animate-[laundryFloat_8s_ease-in-out_infinite]">
+          <WashingMachine size={25} weight="duotone" />
+        </span>
+        <span className="absolute right-[max(0.5rem,calc((100%-72rem)/2-6rem))] top-[17%] grid size-11 place-items-center rounded-full border border-white/80 bg-[#eef7ff]/75 text-[#4d869c]/55 shadow-sm motion-safe:animate-[laundryFloat_7s_ease-in-out_infinite_alternate]">
+          <Shirt size={22} weight="duotone" />
+        </span>
+        <span className="absolute bottom-[13%] left-[47%] size-4 rounded-full border-2 border-[#7ab2b2]/60 motion-safe:animate-[laundryBubble_5s_ease-in-out_infinite]" />
+        <span className="absolute right-[8%] top-[55%] size-3 rounded-full bg-[#7ab2b2]/50 motion-safe:animate-[laundryBubble_6s_ease-in-out_infinite_1s]" />
+      </div>
+      <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 sm:gap-10 sm:px-6 sm:py-14 md:grid-cols-[0.9fr_1.1fr] md:gap-8 md:py-20 lg:gap-12">
         <div className="relative z-10">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-300/50 bg-white/80 px-4 py-1.5 text-xs font-semibold text-brand-700 shadow-sm backdrop-blur">
             <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />

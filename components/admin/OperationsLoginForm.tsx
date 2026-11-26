@@ -2,9 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Shirt } from "lucide-react";
+import { ArrowRight, Shirt } from "@/lib/icons";
 import { getOperationalRole } from "@/lib/admin/role";
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
+
+const localTestAccounts = process.env.NODE_ENV !== "production"
+  ? {
+      admin: {
+        email: process.env.NEXT_PUBLIC_LOCAL_ADMIN_EMAIL,
+        password: process.env.NEXT_PUBLIC_LOCAL_ADMIN_PASSWORD,
+      },
+      operator: {
+        email: process.env.NEXT_PUBLIC_LOCAL_OPERATOR_EMAIL,
+        password: process.env.NEXT_PUBLIC_LOCAL_OPERATOR_PASSWORD,
+      },
+    }
+  : undefined;
+const showLocalTestAccounts = Boolean(
+  localTestAccounts?.admin.email && localTestAccounts.admin.password &&
+  localTestAccounts.operator.email && localTestAccounts.operator.password,
+);
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && /NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY/.test(error.message)) {
@@ -82,7 +99,28 @@ export function OperationsLoginForm() {
 
   return (
     <main className="grid min-h-screen place-items-center bg-soft/50 px-4 py-10">
-      <section className="w-full max-w-md rounded-3xl border border-white bg-white p-6 shadow-xl shadow-brand-900/5 sm:p-8">
+      <div className={`grid w-full items-center gap-6 ${showLocalTestAccounts ? "max-w-5xl lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:gap-8" : "max-w-md"}`}>
+      {showLocalTestAccounts && localTestAccounts && <aside className="order-2 rounded-3xl border border-white/80 bg-white/90 p-5 shadow-lg shadow-brand-900/5 backdrop-blur-sm sm:p-6 lg:order-1">
+        <h2 className="mt-2 text-xl font-extrabold text-ink">Akun untuk masuk</h2>
+        <p className="mt-1 text-sm leading-6 text-muted">Pilih salah satu akun uji di bawah.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="rounded-2xl border border-[#9fc9c6] bg-[#cde8e5] p-4">
+            <h3 className="text-sm font-extrabold text-ink">Login Admin</h3>
+            <dl className="mt-3 space-y-2 text-xs">
+              <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2"><dt className="font-semibold text-muted">Email</dt><dd className="break-all font-mono text-xs font-bold tracking-tight text-brand-700">{localTestAccounts.admin.email}</dd></div>
+              <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2"><dt className="font-semibold text-muted">Password</dt><dd className="font-mono font-bold text-ink">{localTestAccounts.admin.password}</dd></div>
+            </dl>
+          </div>
+          <div className="rounded-2xl border border-[#c7dce7] bg-[#eef7ff] p-4">
+            <h3 className="text-sm font-extrabold text-ink">Login Operator</h3>
+            <dl className="mt-3 space-y-2 text-xs">
+              <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2"><dt className="font-semibold text-muted">Email</dt><dd className="break-all font-mono text-xs font-bold tracking-tight text-brand-700">{localTestAccounts.operator.email}</dd></div>
+              <div className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-center gap-2"><dt className="font-semibold text-muted">Password</dt><dd className="font-mono font-bold text-ink">{localTestAccounts.operator.password}</dd></div>
+            </dl>
+          </div>
+        </div>
+      </aside>}
+      <section className={`order-1 w-full max-w-md justify-self-center rounded-3xl border border-white bg-white p-6 shadow-xl shadow-brand-900/5 sm:p-8 ${showLocalTestAccounts ? "lg:order-2" : ""}`}>
         <div className="flex items-center gap-2.5">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-700/20 ring-2 ring-brand-500/10">
             <Shirt size={21} strokeWidth={2.1} aria-hidden="true" />
@@ -138,6 +176,7 @@ export function OperationsLoginForm() {
           Akun harus memiliki role admin atau petugas yang ditetapkan di Supabase.
         </p>
       </section>
+      </div>
     </main>
   );
 }

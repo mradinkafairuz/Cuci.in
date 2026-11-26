@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CalendarDays, LoaderCircle, PackageOpen } from "lucide-react";
+import { CalendarDays, LoaderCircle, PackageOpen } from "@/lib/icons";
 import { Card } from "@/components/ui/Card";
 
 type LoanRequest = { id: string; borrower_name: string; phone: string; equipment_name: string; quantity: number; start_date: string; return_date: string; notes: string | null; status: string; created_at: string };

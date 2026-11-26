@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone, Shirt } from "lucide-react";
+import { Mail, MapPin, Phone, Shirt } from "@/lib/icons";
 
 export function Footer() {
   return (

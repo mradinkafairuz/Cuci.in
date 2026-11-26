@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Shirt } from "lucide-react";
+import { Shirt } from "@/lib/icons";
 
 export function RouteLoadingOverlay() {
   const pathname = usePathname();

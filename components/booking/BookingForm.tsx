@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Clock, PackageCheck } from "lucide-react";
+import { CheckCircle2, Clock, PackageCheck } from "@/lib/icons";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { NearbyLaundryFinder } from "@/components/booking/NearbyLaundryFinder";

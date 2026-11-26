@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, CheckCircle2, ContactRound, Crown, Hash, LoaderCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, BadgeCheck, CheckCircle2, ContactRound, Crown, Hash, LoaderCircle } from "@/lib/icons";
+import { motion } from "motion/react";
 import { Card } from "@/components/ui/Card";
+import { ScrollReveal } from "@/components/ui/useScrollReveal";
 import { DEFAULT_MEMBERSHIP_PLANS, formatMembershipPrice, type MembershipPlan, type MembershipPlanCode } from "@/lib/membership";
 import { isValidIndonesianPhone } from "@/lib/utils/phone";
 
@@ -90,10 +91,12 @@ export function MembershipForm() {
           { icon: Hash, title: "Kode member unik", description: "ID khusus untuk mengenali pendaftaran membership Anda." },
           { icon: ContactRound, title: "Data tercatat", description: "Nama dan nomor WhatsApp digunakan untuk mencatat pendaftaran Anda." },
           { icon: BadgeCheck, title: "Konfirmasi pembayaran", description: "Paket aktif setelah pembayaran dikonfirmasi oleh tim Cuci.in." },
-        ].map(({ icon: Icon, title, description }) => <Card key={title} className="flex gap-3 p-4">
+        ].map(({ icon: Icon, title, description }, index) => <ScrollReveal key={title} delay={index * 0.06}>
+          <Card className="flex gap-3 p-4">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500/10 text-brand-700"><Icon size={19} /></span>
           <span><span className="block font-bold text-ink">{title}</span><span className="mt-1 block text-sm leading-5 text-muted">{description}</span></span>
-        </Card>)}
+          </Card>
+        </ScrollReveal>)}
       </div>
       <div className="mb-5 text-center">
         <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/10 px-3 py-1.5 text-xs font-bold text-brand-700"><Crown size={15} /> Pilih paket</span>
@@ -104,27 +107,37 @@ export function MembershipForm() {
       {!loadingPlans && plansError && <Card className="py-7 text-center"><p role="alert" className="text-sm text-red-700">{plansError}</p><button type="button" onClick={() => void loadPlans()} className="mt-3 min-h-10 rounded-lg border border-soft px-4 text-sm font-bold text-ink">Coba lagi</button></Card>}
       {!loadingPlans && !plansError && plans.length === 0 && <Card className="py-7 text-center text-sm text-muted">Belum ada paket membership yang tersedia.</Card>}
       <div className="grid gap-4 md:grid-cols-2">
-        {plans.map((item) => {
+        {plans.map((item, index) => {
           const isSelected = selectedPlan === item.code;
-          return <motion.div key={item.code} layout className="h-full" animate={{ y: isSelected ? -2 : 0, scale: isSelected ? 1.012 : 1 }} transition={{ type: "spring", stiffness: 260, damping: 26, mass: 0.8 }}>
-            <Card className={`flex h-full min-h-[17.5rem] flex-col p-5 transition-[border-color,box-shadow] duration-300 ease-out ${isSelected ? "border-brand-500 shadow-md ring-2 ring-brand-500/20" : "hover:border-brand-300 hover:shadow-md"}`}>
+          const isFeatured = item.priority_queue;
+          return <ScrollReveal key={item.code} delay={index * 0.08} className="h-full">
+            <motion.div
+              layout
+              className="h-full"
+              animate={{ y: isSelected ? -2 : 0, scale: isSelected ? 1.012 : 1 }}
+              whileHover={{ y: -6, scale: 1.015 }}
+              transition={{ type: "spring", stiffness: 240, damping: 26, mass: 0.8 }}
+            >
+            <Card className={`relative flex h-full min-h-[17.5rem] flex-col overflow-hidden p-5 transition-[border-color,box-shadow] duration-300 ease-out ${isFeatured ? "border-brand-700 bg-brand-700 text-white" : "border-[#b7d6d8] bg-[#eef7ff] text-ink"} ${isSelected ? "ring-2 ring-brand-300 shadow-lg" : "hover:border-brand-300 hover:shadow-md"}`}>
+              {isFeatured && <span aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 size-40 rounded-full bg-white/10" />}
               <div className="flex min-h-[5.5rem] items-start justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-extrabold text-ink">{item.name}</h3>
-              <p className="mt-1 text-sm leading-6 text-muted">{item.description}</p>
+                  <h3 className={`text-xl font-extrabold ${isFeatured ? "text-white" : "text-ink"}`}>{item.name}</h3>
+              <p className={`mt-1 text-sm leading-6 ${isFeatured ? "text-white/80" : "text-muted"}`}>{item.description}</p>
                 </div>
-              {item.priority_queue && <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">Antrean prioritas</span>}
+              {item.priority_queue && <span className="shrink-0 rounded-full bg-[#cde8e5] px-2.5 py-1 text-xs font-bold text-brand-700">Antrean prioritas</span>}
               </div>
-            <p className="mt-4 text-2xl font-extrabold text-brand-700">{formatMembershipPrice(item.monthly_price)}<span className="ml-1 text-sm font-medium text-muted">/bulan</span></p>
+            <p className={`mt-4 text-2xl font-extrabold ${isFeatured ? "text-white" : "text-brand-700"}`}>{formatMembershipPrice(item.monthly_price)}<span className={`ml-1 text-sm font-medium ${isFeatured ? "text-white/75" : "text-muted"}`}>/bulan</span></p>
               <div className="mt-2 mb-4 min-h-12 text-sm leading-6">
-                <p className="font-semibold text-ink">Diskon {item.discount_percent}% untuk layanan laundry</p>
-                <p className="text-muted">{item.priority_queue ? "Termasuk antrean layanan prioritas." : "Berlaku untuk setiap transaksi laundry."}</p>
+                <p className={`font-semibold ${isFeatured ? "text-white" : "text-ink"}`}>Diskon {item.discount_percent}% untuk layanan laundry</p>
+                <p className={isFeatured ? "text-white/80" : "text-muted"}>{item.priority_queue ? "Termasuk antrean layanan prioritas." : "Berlaku untuk setiap transaksi laundry."}</p>
               </div>
-              <motion.button type="button" whileTap={{ scale: 0.985 }} transition={{ type: "spring", stiffness: 240, damping: 24, mass: 0.7 }} onClick={() => { setSelectedPlan(item.code); setError(""); }} aria-pressed={isSelected} className={`mt-auto inline-flex min-h-11 w-full items-center justify-center rounded-xl border px-4 text-sm font-bold transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-out ${isSelected ? "border-brand-600 bg-brand-500 text-white shadow-sm" : "border-brand-300 text-brand-700 hover:bg-brand-50 active:scale-[0.985]"}`}>
+              <motion.button type="button" whileTap={{ scale: 0.985 }} transition={{ type: "spring", stiffness: 240, damping: 24, mass: 0.7 }} onClick={() => { setSelectedPlan(item.code); setError(""); }} aria-pressed={isSelected} className={`mt-auto inline-flex min-h-11 w-full items-center justify-center rounded-xl border px-4 text-sm font-bold transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-out ${isSelected ? "border-white bg-white text-brand-700 shadow-sm" : isFeatured ? "border-white/50 text-white hover:bg-white/10" : "border-brand-300 text-brand-700 hover:bg-brand-50 active:scale-[0.985]"}`}>
                 {isSelected ? "Paket dipilih" : "Pilih paket ini"}
               </motion.button>
             </Card>
-          </motion.div>;
+            </motion.div>
+          </ScrollReveal>;
         })}
       </div>
       {error && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}

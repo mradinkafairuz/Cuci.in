@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CalendarDays, LoaderCircle, PackageOpen } from "lucide-react";
+import { CalendarDays, LoaderCircle, PackageOpen } from "@/lib/icons";
 import { Card } from "@/components/ui/Card";
 import { adminRequest } from "@/lib/admin/request";
 

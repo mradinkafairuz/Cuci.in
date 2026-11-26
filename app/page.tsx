@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { CtaSection } from "@/components/landing/CtaSection";
 import { CustomerReviews } from "@/components/landing/CustomerReviews";
 import { Hero } from "@/components/landing/Hero";
+import { LaundryCare } from "@/components/landing/LaundryCare";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { OperatingHours } from "@/components/landing/OperatingHours";
 import { Pricing } from "@/components/landing/Pricing";
@@ -15,10 +16,11 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
-        <CustomerReviews />
         <Services />
-        <Pricing />
+        <LaundryCare />
         <HowItWorks />
+        <Pricing />
+        <CustomerReviews />
         <OperatingHours />
         <CtaSection />
       </main>

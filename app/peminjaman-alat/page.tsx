@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, CalendarDays, Rows3, Shirt, ShieldCheck, ShoppingBasket, SprayCan, WashingMachine, Wind, type LucideIcon } from "lucide-react";
+import { BadgeCheck, CalendarDays, Rows3, Shirt, ShieldCheck, ShoppingBasket, SprayCan, WashingMachine, Wind, type PhosphorIcon } from "@/lib/icons";
 import { EquipmentLoanForm } from "@/components/loans/EquipmentLoanForm";
 import { BackToHome } from "@/components/layout/BackToHome";
 import { Footer } from "@/components/layout/Footer";
@@ -8,7 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { usePublicCatalog } from "@/lib/hooks/use-public-catalog";
 import { formatRupiah } from "@/lib/utils/format";
 
-function getEquipmentIcon(name: string): LucideIcon {
+function getEquipmentIcon(name: string): PhosphorIcon {
   const normalized = name.toLowerCase();
   if (normalized.includes("mesin cuci")) return WashingMachine;
   if (normalized.includes("setrika")) return Shirt;

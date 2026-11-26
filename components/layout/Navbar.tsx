@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { BadgeDollarSign, BookOpen, Clock3, Crown, House, MapPin, MoreHorizontal, PackageSearch, Shirt, ShoppingBag, Sparkles, Wrench, X } from "lucide-react";
+import { BadgeDollarSign, BookOpen, Clock3, Crown, House, MapPin, MoreHorizontal, PackageSearch, Shirt, ShoppingBag, Sparkles, Wrench, X } from "@/lib/icons";
 import { LiquidNavbar, type LiquidNavItem } from "@/components/ui/liquid-glass-navbar";
 
 const navItems: LiquidNavItem[] = [

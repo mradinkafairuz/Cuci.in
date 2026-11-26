@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HTMLAttributes } from "react";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play } from "@/lib/icons";
 import { cn } from "@/lib/utils/cn";
 
 export interface CarouselItem {

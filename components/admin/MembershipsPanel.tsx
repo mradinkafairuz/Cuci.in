@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { LoaderCircle, Mail, Phone, RefreshCw, Save, Users } from "lucide-react";
+import { LoaderCircle, Mail, Phone, RefreshCw, Save, Users } from "@/lib/icons";
 import { Card } from "@/components/ui/Card";
 import { adminRequest } from "@/lib/admin/request";
 import { formatMembershipPrice, type MembershipPlan } from "@/lib/membership";

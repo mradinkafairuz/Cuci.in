@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut } from "@/lib/icons";
 
 export function LogoutButton() {
   const router = useRouter();

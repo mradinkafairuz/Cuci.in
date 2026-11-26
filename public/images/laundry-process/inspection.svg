@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" fill="none">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="960" y2="600" gradientUnits="userSpaceOnUse"><stop stop-color="#EAF5F4"/><stop offset="1" stop-color="#D8E9ED"/></linearGradient><linearGradient id="cloth" x1="250" y1="286" x2="670" y2="490" gradientUnits="userSpaceOnUse"><stop stop-color="#F7F9F7"/><stop offset="1" stop-color="#C7DFE2"/></linearGradient></defs>
+  <path fill="url(#bg)" d="M0 0h960v600H0z"/><path fill="#F8FCFB" d="M0 0h960v370H0z"/>
+  <path fill="#D8E8E8" d="M80 80h183v194H80z"/><path fill="#F8FCFC" d="M97 97h149v161H97z"/><path stroke="#AFCBD0" stroke-width="10" d="M171 97v161M97 177h149"/>
+  <path fill="#B8D4D7" d="M681 91h193v187H681z"/><path fill="#E9F2F1" d="M700 110h155v149H700z"/><path fill="#FFFFFF" d="M715 219c36-24 91-24 126 0v36H715z"/>
+  <path fill="#F0C8A5" d="M459 106c45 0 75 33 75 77v42H384v-42c0-44 30-77 75-77Z"/><path fill="#344D52" d="M382 171c-3-63 25-101 77-101 54 0 81 44 74 101l-18-22-12-29c-26 23-67 33-114 33l-7 18Z"/>
+  <path fill="#F0C8A5" d="M420 217h78v45c0 20-17 36-39 36s-39-16-39-36v-45Z"/><path fill="#4D8190" d="M393 257h132l59 165H334l59-165Z"/><path fill="#E8F2F2" d="M436 263h48l-14 94h-20l-14-94Z"/>
+  <path fill="#F0C8A5" d="m403 283-70 71 21 22 86-65-37-28Zm111 0 70 71-21 22-86-65 37-28Z"/>
+  <path fill="#B88D68" d="M354 383c38-28 77-36 118-18l71 29-18 55H347l7-66Z"/><path fill="#E9C9A9" d="M355 406c67-26 132-24 197 1l-16 37H347l8-38Z"/>
+  <path fill="#A8C4C8" d="M158 426h644v30H158z"/><path fill="#D2E2E3" d="M183 456h19v115h-19zm574 0h19v115h-19z"/>
+  <path fill="url(#cloth)" d="M243 339c76-23 155-20 236 6l-20 87H228l15-93Z"/><path fill="#F6F9F8" d="M272 321h207v37H272z"/><path fill="#BCD4D8" d="M269 357h227v16H269z"/><path fill="#E8F0EF" d="M261 374h216v43H261z"/><path fill="#A7C7CC" d="M276 386h150v8H276zM276 401h179v7H276z"/>
+  <circle cx="718" cy="366" r="51" fill="#FFFFFF"/><circle cx="718" cy="366" r="35" stroke="#5A9295" stroke-width="9"/><path stroke="#5A9295" stroke-linecap="round" stroke-width="9" d="m701 366 12 12 23-26"/>
+</svg>

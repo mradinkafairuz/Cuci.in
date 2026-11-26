@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, RefreshCw, Shirt } from "lucide-react";
+import { LogOut, RefreshCw, Shirt } from "@/lib/icons";
 import { OrdersPanel } from "@/components/admin/AdminPanel";
 import { getOperationalRole } from "@/lib/admin/role";
 import { getBrowserSupabaseClient } from "@/lib/supabase/browser";
