@@ -118,7 +118,7 @@ export function MembershipForm() {
               whileHover={{ y: -6, scale: 1.015 }}
               transition={{ type: "spring", stiffness: 240, damping: 26, mass: 0.8 }}
             >
-            <Card className={`relative flex h-full min-h-[17.5rem] flex-col overflow-hidden p-5 transition-[border-color,box-shadow] duration-300 ease-out ${isFeatured ? "border-brand-700 bg-brand-700 text-white" : "border-[#b7d6d8] bg-[#eef7ff] text-ink"} ${isSelected ? "ring-2 ring-brand-300 shadow-lg" : "hover:border-brand-300 hover:shadow-md"}`}>
+            <Card className={`relative flex h-full min-h-[17.5rem] flex-col overflow-hidden p-5 transition-[border-color,box-shadow] duration-300 ease-out ${isFeatured ? "border-brand-700 !bg-brand-700 text-white" : "border-[#b7d6d8] !bg-[#eef7ff] text-ink"} ${isSelected ? "ring-2 ring-brand-300 shadow-lg" : "hover:border-brand-300 hover:shadow-md"}`}>
               {isFeatured && <span aria-hidden="true" className="pointer-events-none absolute -right-12 -top-14 size-40 rounded-full bg-white/10" />}
               <div className="flex min-h-[5.5rem] items-start justify-between gap-3">
                 <div>
