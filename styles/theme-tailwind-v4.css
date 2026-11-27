@@ -1,0 +1,31 @@
+/*
+  TEMA WARNA — untuk Tailwind v4.
+  Tempel isi file ini ke app/globals.css (di bawah baris @import "tailwindcss";).
+
+  Palet (Color Hunt):
+    #EEF7FF  -> background halaman
+    #CDE8E5  -> background section lembut
+    #7AB2B2  -> warna sekunder
+    #4D869C  -> warna utama
+*/
+@theme {
+  --color-page: #eef7ff;
+  --color-soft: #cde8e5;
+  --color-brand-300: #7ab2b2;
+  --color-brand-500: #4d869c;
+  --color-brand-600: #3f7487;
+  --color-brand-700: #335f6f;
+  --color-ink: #1f3a44;
+  --color-muted: #5b7680;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-page);
+  color: var(--color-ink);
+}
